@@ -1,4 +1,5 @@
 import csv
+import re
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -10,59 +11,102 @@ import os
 
 # === Chrome設定 ===
 options = Options()
-options.add_argument("--headless")
+options.add_argument("--headless=new")  # 新ヘッドレス
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--window-size=1280,2000")
+options.add_argument(
+    "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
 
-# --- Chrome起動とURLアクセス ---
 driver = webdriver.Chrome(options=options)
+wait = WebDriverWait(driver, 20)
+
 url = "https://www.mizuhobank.co.jp/takarakuji/check/numbers/numbers3/index.html"
 driver.get(url)
-wait = WebDriverWait(driver, 10)
 
 data = []
 
 try:
-    # この try の中にすべての処理を入れる
-    dates = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "js-lottery-date-pc")))
-    numbers = driver.find_elements(By.CLASS_NAME, "js-lottery-number-pc")
-    issues = driver.find_elements(By.CLASS_NAME, "js-lottery-issue-pc")
-    prize_elems = driver.find_elements(By.CSS_SELECTOR, "tr.js-lottery-prize-pc strong.section__text--bold")
+    # ページの主要テーブルが描画されるまで待機（PC向けテーブル）
+    table = wait.until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "table"))
+    )
+    # 行単位で処理（tbody > tr）
+    rows = wait.until(
+        EC.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, "tbody tr")
+        )
+    )
 
-    num_results = min(len(dates), len(numbers), len(issues))
-
-    for i in range(num_results):
+    for i, row in enumerate(rows, start=1):
         try:
-            date_text = dates[i].text.strip()
-            if not date_text:
-                print(f"[WARNING] 回 {i+1}: 日付が空です（スキップ）")
+            # 行内で必要要素を探す（クラス名は変わりやすいのでフォールバックあり）
+            def q(css):
+                els = row.find_elements(By.CSS_SELECTOR, css)
+                return els[0] if els else None
+
+            el_date  = q(".js-lottery-date-pc, .section__date, .date, time")
+            el_issue = q(".js-lottery-issue-pc, .issue, .section__issue")
+            el_num   = q(".js-lottery-number-pc, .number, .section__number")
+
+            # 見出し・空行スキップ
+            if not el_date or not el_issue or not el_num:
                 continue
 
+            date_text = el_date.get_attribute("textContent").strip()
+            issue_text = el_issue.get_attribute("textContent").strip()
+            num_text = el_num.get_attribute("textContent").strip()
+
+            if not date_text or not re.search(r"\d", date_text):
+                # 空や見出しの場合はスキップ
+                # print(f"[DEBUG] 行 {i}: 日付が空/非数値（スキップ）")
+                continue
+
+            # 日付パース
+            # 例: 2025年08月18日 → 2025-08-18
             draw_date = datetime.strptime(date_text, "%Y年%m月%d日").strftime("%Y-%m-%d")
-            draw_number = issues[i].text.strip()
-            main_number = str([int(c) for c in numbers[i].text.strip()])
 
-            base_index = i * 5
+            # 回別
+            draw_number = issue_text
 
-            def get_prize(j):
-                try:
-                    return int(prize_elems[base_index + j].text.replace(",", "").replace("円", "").strip())
-                except:
-                    return None
+            # 本数字（数字だけ抽出して配列化）
+            digits = [int(d) for d in re.findall(r"\d", num_text)]
+            main_number = str(digits)
+
+            # 賞金はその行の中の strong を収集（上位から5件）
+            prize_strongs = row.find_elements(By.CSS_SELECTOR, "strong")
+            # 余計な strong を弾くため「円」を含むテキストに限定
+            prize_vals = []
+            for s in prize_strongs:
+                t = s.get_attribute("textContent").strip()
+                if "円" in t:
+                    try:
+                        prize_vals.append(int(t.replace(",", "").replace("円", "").strip()))
+                    except:
+                        prize_vals.append(None)
+
+            # 期待順: ストレート, ボックス, セット(スト), セット(ボ), ミニ
+            # 足りなければ None で埋める
+            while len(prize_vals) < 5:
+                prize_vals.append(None)
 
             data.append({
                 "回別": draw_number,
                 "抽せん日": draw_date,
                 "本数字": main_number,
-                "ストレート": get_prize(0),
-                "ボックス": get_prize(1),
-                "セット(ストレート)": get_prize(2),
-                "セット(ボックス)": get_prize(3),
-                "ミニ": get_prize(4),
+                "ストレート": prize_vals[0],
+                "ボックス": prize_vals[1],
+                "セット(ストレート)": prize_vals[2],
+                "セット(ボックス)": prize_vals[3],
+                "ミニ": prize_vals[4],
             })
 
         except Exception as e:
-            print(f"[WARNING] 回 {i+1} でエラー: {e}")
+            # 行単位で握りつぶして先へ
+            # print(f"[WARN] 行 {i} でエラー: {e}")
+            continue
 
 finally:
     driver.quit()
@@ -71,25 +115,25 @@ finally:
 csv_path = "numbers3.csv"
 try:
     existing = pd.read_csv(csv_path)
-    existing_dates = existing["抽せん日"].tolist()
+    existing_dates = existing["抽せん日"].astype(str).tolist()
     fieldnames = existing.columns.tolist()
 except FileNotFoundError:
     existing = pd.DataFrame()
     existing_dates = []
     fieldnames = ["抽せん日", "本数字", "回別", "ストレート", "ボックス", "セット(ストレート)", "セット(ボックス)", "ミニ"]
 
-# 新しいデータを抽出（同一日付除外）
+# 新しいデータ（同一日付除外）
 new_rows = [row for row in data if row["抽せん日"] not in existing_dates]
 
 if new_rows:
+    write_header = existing.empty or not os.path.exists(csv_path)
     with open(csv_path, mode="a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
-        if existing.empty:
+        if write_header:
             writer.writeheader()
         writer.writerows(new_rows)
 
-# 並び替え（昇順）
-if new_rows:
+    # 並び替え（昇順）
     df = pd.read_csv(csv_path)
     df.sort_values("抽せん日", inplace=True)
     df.to_csv(csv_path, index=False, encoding="utf-8")
