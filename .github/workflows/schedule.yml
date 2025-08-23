@@ -71,7 +71,7 @@ jobs:
           fi
 
       - name: Run predictor script
-        run: xvfb-run -a python numbers3_predictor.py
+        run: xvfb-run -a python numbers3_predictor_modified.py
 
       - name: Commit and push remaining prediction results
         env:
