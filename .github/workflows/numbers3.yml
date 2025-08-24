@@ -1,0 +1,170 @@
+name: Numbers3 Retry Full
+
+on:
+  # 平日 09:10 JST（= 00:10 UTC）
+  schedule:
+    - cron: '10 0 * * 1-5'
+  # 手動実行
+  workflow_dispatch:
+    inputs:
+      csv_path:
+        description: 'numbers3.csv のパス（直置き時）'
+        required: false
+        default: 'numbers3.csv'
+      window:
+        description: '直近ウィンドウ（抽せん数）'
+        required: false
+        default: '120'
+      k:
+        description: '1日に出す候補数'
+        required: false
+        default: '6'
+      half_life:
+        description: '直近期重みの半減期（日）'
+        required: false
+        default: '60'
+      mode:
+        description: '評価モード(box/straight)'
+        required: false
+        default: 'box'
+      eval_last:
+        description: '評価に使う末尾の抽せん数'
+        required: false
+        default: '200'
+      min_diversity:
+        description: '候補間の最小ハミング距離(0=無効)'
+        required: false
+        default: '1'
+      skip_last_exact:
+        description: '直前当選の完全コピー除外(1/0)'
+        required: false
+        default: '1'
+      top_m_digits:
+        description: '候補生成で使う上位桁(3-10)'
+        required: false
+        default: '7'
+
+permissions:
+  contents: write   # 結果CSVをコミットするため
+
+env:
+  TZ: Asia/Tokyo
+  MODEL_NAME: RecencyPairFullV1
+  OUT_PRED: Numbers3_predictions.csv
+  OUT_EVAL: numbers3_retry_eval.csv
+  OUT_SUMMARY_JSON: numbers3_retry_summary.json
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # ===== pip キャッシュ（core 用）=====
+      - name: Cache pip (core)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-core-${{ hashFiles('requirements_core.txt') }}
+          restore-keys: ${{ runner.os }}-pip-core-
+
+      - name: Install core dependencies
+        run: |
+          if [ -f requirements_core.txt ]; then
+            pip install -r requirements_core.txt
+          else
+            echo "pandas" > requirements_core.txt
+            echo "numpy"  >> requirements_core.txt
+            pip install -r requirements_core.txt
+          fi
+
+      # ===== pip キャッシュ（heavy 用）=====
+      - name: Cache pip (heavy)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-heavy-${{ hashFiles('requirements_heavy.txt') }}
+          restore-keys: ${{ runner.os }}-pip-heavy-
+
+      - name: Install heavy dependencies
+        run: |
+          if [ -f requirements_heavy.txt ]; then
+            pip install -r requirements_heavy.txt
+          else
+            # 重依存が不要なら空でOK。必要ならこの場で追記しても良いです。
+            echo "" > requirements_heavy.txt
+          fi
+
+      # ===== 任意：秘密URLからCSV取得 =====
+      - name: Fetch numbers3.csv from secret URL (optional)
+        if: ${{ secrets.NUMBERS3_CSV_URL != '' }}
+        run: |
+          curl -fsSL "$NUMBERS3_CSV_URL" -o numbers3.csv
+        env:
+          NUMBERS3_CSV_URL: ${{ secrets.NUMBERS3_CSV_URL }}
+
+      - name: List files (debug)
+        run: ls -al
+
+      - name: Resolve inputs & defaults
+        id: args
+        shell: bash
+        run: |
+          CSV_PATH="${{ github.event.inputs.csv_path }}"
+          [ -z "$CSV_PATH" ] && CSV_PATH="numbers3.csv"
+          echo "csv=$CSV_PATH" >> $GITHUB_OUTPUT
+          echo "window=${{ github.event.inputs.window || '120' }}" >> $GITHUB_OUTPUT
+          echo "k=${{ github.event.inputs.k || '6' }}" >> $GITHUB_OUTPUT
+          echo "half_life=${{ github.event.inputs.half_life || '60' }}" >> $GITHUB_OUTPUT
+          echo "mode=${{ github.event.inputs.mode || 'box' }}" >> $GITHUB_OUTPUT
+          echo "eval_last=${{ github.event.inputs.eval_last || '200' }}" >> $GITHUB_OUTPUT
+          echo "min_diversity=${{ github.event.inputs.min_diversity || '1' }}" >> $GITHUB_OUTPUT
+          echo "skip_last_exact=${{ github.event.inputs.skip_last_exact || '1' }}" >> $GITHUB_OUTPUT
+          echo "top_m_digits=${{ github.event.inputs.top_m_digits || '7' }}" >> $GITHUB_OUTPUT
+
+      - name: Run Numbers3 Retry Full
+        run: |
+          python numbers3_predictor.py \
+            --csv "${{ steps.args.outputs.csv }}" \
+            --window ${{ steps.args.outputs.window }} \
+            --k ${{ steps.args.outputs.k }} \
+            --half_life ${{ steps.args.outputs.half_life }} \
+            --mode ${{ steps.args.outputs.mode }} \
+            --eval_last ${{ steps.args.outputs.eval_last }} \
+            --min_diversity ${{ steps.args.outputs.min_diversity }} \
+            --skip_last_exact ${{ steps.args.outputs.skip_last_exact }} \
+            --top_m_digits ${{ steps.args.outputs.top_m_digits }} \
+            --out_predictions "$OUT_PRED" \
+            --out_eval "$OUT_EVAL" \
+            --json_summary "$OUT_SUMMARY_JSON" \
+            --model_name "$MODEL_NAME"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: numbers3-results
+          path: |
+            ${{ env.OUT_PRED }}
+            ${{ env.OUT_EVAL }}
+            ${{ env.OUT_SUMMARY_JSON }}
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit & push results
+        run: |
+          git config user.name  "${{ secrets.GIT_USER_NAME  || 'github-actions' }}"
+          git config user.email "${{ secrets.GIT_USER_EMAIL || 'github-actions@github.com' }}"
+          git add "$OUT_PRED" "$OUT_EVAL" "$OUT_SUMMARY_JSON" || true
+          if ! git diff --cached --quiet; then
+            DATE_JST="$(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S %Z')"
+            git commit -m "Numbers3 results: ${DATE_JST}"
+            git push
+          else
+            echo "No changes to commit."
+          fi
