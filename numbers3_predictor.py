@@ -120,6 +120,8 @@ class ScorerConfig:
     pair_weight: float = 0.7      # ペア共起の寄与（順不同）
     digit_weight: float = 1.0     # 単独出現頻度の寄与
     opair_weight: float = 0.2     # 順序付きペアの寄与（ミニ対策・弱め）
+    equal_weight: bool = False  # True なら全期間を同等重みで集計
+
 
 
 def make_recency_weights(dates: pd.Series, ref_date: pd.Timestamp, half_life_days: float) -> np.ndarray:
@@ -133,13 +135,13 @@ def build_stats(
     end_date: pd.Timestamp,
     cfg: ScorerConfig,
 ) -> Tuple[np.ndarray, Dict[Tuple[int, int], float], Dict[Tuple[int, int], float]]:
-    """直近ウィンドウで桁頻度・順不同ペア・順序付きペアを指数減衰で集計。
+    \"\"\"直近ウィンドウで桁頻度・順不同ペア・順序付きペアを指数減衰で集計。
     戻り値:
       digit_scores: shape(10,) 0-1 正規化
       pair_scores:  {(i,j): score}, i<j
       opair_scores: {(a,b): score}, 位置順（後ろ2桁対策など）
-    """
-    w = make_recency_weights(df_win["抽せん日"], end_date, cfg.half_life_days)
+    \"\"\"
+    w = np.ones(len(df_win), dtype=float) if cfg.equal_weight else make_recency_weights(df_win[\"抽せん日\"], end_date, cfg.half_life_days)
     digit_scores = np.zeros(10, dtype=float)
     pair_scores: Dict[Tuple[int, int], float] = {}
     opair_scores: Dict[Tuple[int, int], float] = {}
@@ -297,9 +299,12 @@ def walk_forward_eval(
     start_eval = max(0, last_idx - eval_last)
 
     for t in range(start_eval + 1, last_idx + 1):
-        prev_date = df.loc[t - 1, "抽せん日"]
-        lo = max(0, t - 1 - window + 1)
-        df_win = df.iloc[lo:t]
+        prev_date = df.loc[t - 1, \"抽せん日\"]
+        if cfg.equal_weight:
+            df_win = df.iloc[:t]
+        else:
+            lo = max(0, t - 1 - window + 1)
+            df_win = df.iloc[lo:t]
         digit_scores, pair_scores, opair_scores = build_stats(df_win, prev_date, cfg)
         ban = df.iloc[t - 1]["本数字"] if skip_last_exact else None
         preds = rank_candidates(
@@ -384,7 +389,7 @@ def next_predictions(
     top_m_digits: int = 7,
 ) -> Tuple[pd.Timestamp, List[Tuple[List[int], float]]]:
     last_date = df["抽せん日"].max()
-    df_win = df.tail(window)
+    df_win = df if cfg.equal_weight else df.tail(window)
     digit_scores, pair_scores, opair_scores = build_stats(df_win, last_date, cfg)
     ban = df.iloc[-1]["本数字"] if skip_last_exact else None
     preds = rank_candidates(
@@ -449,7 +454,7 @@ def main():
     args = p.parse_args()
 
     df = load_numbers3_csv(args.csv)
-    cfg = ScorerConfig(half_life_days=args.half_life)
+    cfg = ScorerConfig(half_life_days=args.half_life, equal_weight=bool(args.equal_weight))
 
     # ===== 評価 =====
     df_eval = walk_forward_eval(
