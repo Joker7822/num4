@@ -1204,7 +1204,7 @@ class LotoPredictor:
         top_predictions = [(c["numbers"], c["confidence"]) for c in sorted_candidates[:num_candidates]]
 
         # === ストレート構成を強制的に1件含める
-        def enforce_strict_structure(preds):
+def enforce_strict_structure(preds):
     has_straight = any(classify_numbers3_prize(p[0], p[0]) == "ストレート" for p in preds)
     if not has_straight:
         eval_df = safe_load_evaluation_df("evaluation_result.csv")
