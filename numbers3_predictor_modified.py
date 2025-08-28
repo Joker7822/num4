@@ -106,6 +106,10 @@ class LotoEnv(gym.Env):
         self.historical_numbers = historical_numbers
         self.action_space = spaces.Box(low=0, high=1, shape=(10,), dtype=np.float32)
         self.observation_space = spaces.Box(low=0, high=1, shape=(10,), dtype=np.float32)
+        try:
+            self.cycle_scores = calculate_number_cycle_score(historical_numbers)
+        except Exception:
+            self.cycle_scores = {}
 
     def reset(self):
         return np.zeros(10, dtype=np.float32)
@@ -119,7 +123,7 @@ def step(self, action):
 
     match_count = len(selected_numbers & target_numbers)
     # cycle_scores を self.cycle_scores で持っていない場合は、適当なデフォルト値を使用する
-    avg_cycle_score = 999  # 仮に固定値を設定
+    avg_cycle_score = np.mean([self.cycle_scores.get(int(n), 100) for n in selected_numbers]) if isinstance(getattr(self, "cycle_scores", {}), dict) else 100
     reward = match_count * 0.5 + max(0, 1 - avg_cycle_score / 50)
 
     done = True
@@ -143,7 +147,7 @@ class DiversityEnv(gym.Env):
 
         selected = np.argsort(action)[-3:]  # または[-4:]
 
-        selected = tuple(sorted(np.argsort(action)[-4:]))
+        selected = tuple(sorted(np.argsort(action)[-3:]))
         reward = 1.0 if selected not in self.previous_outputs else -1.0
         self.previous_outputs.add(selected)
         return np.zeros(10, dtype=np.float32), reward, True, {}
@@ -165,7 +169,7 @@ class CycleEnv(gym.Env):
 
         selected = np.argsort(action)[-3:]  # または[-4:]
 
-        selected = np.argsort(action)[-4:]
+        selected = np.argsort(action)[-3:]
         avg_cycle = np.mean([self.cycle_scores.get(n, 999) for n in selected])
         reward = max(0, 1 - (avg_cycle / 50))
         return np.zeros(10, dtype=np.float32), reward, True, {}
@@ -227,7 +231,7 @@ class MultiAgentPPOTrainer:
             obs = model.env.reset()
             for _ in range(num_candidates // 3):
                 action, _ = model.predict(obs)
-                selected = list(np.argsort(action)[-4:])
+                selected = list(np.argsort(action)[-3:])
                 predictions.append((selected, 0.9))  # 信頼度は仮
         return predictions
 
@@ -914,7 +918,7 @@ def gpt_generate_predictions_with_memory_3(decoder, encoder, history_sequences, 
             seq.append(next_digit)
 
         if len(set(seq)) == 3:
-            predictions.append((seq, 0.91))
+            predictions.append((seq, compute_data_driven_confidence(seq, pd.DataFrame({"本数字": history_sequences}))))
 
     return predictions
 
@@ -935,7 +939,7 @@ def gpt_generate_predictions(model, num_samples=5, context_length=4):
                 next_token = torch.argmax(logits[-1]).item()
                 seq.append(next_token)
         if len(set(seq)) == 4:
-            predictions.append((seq, 0.89))  # 信頼度は仮
+            predictions.append((seq, compute_data_driven_confidence(seq, pd.DataFrame({"本数字": history_sequences}))))  # 信頼度は仮
     return predictions
 
 def train_gpt3numbers_model(save_path="gpt3numbers.pth", epochs=50):
@@ -1166,6 +1170,7 @@ class LotoPredictor:
 
             base_conf = 1.0
             corrected_conf = base_conf
+            predicted_match = 0
             if self.meta_model:
                 try:
                     extended_features = np.concatenate([
@@ -1200,14 +1205,23 @@ class LotoPredictor:
 
         # === ストレート構成を強制的に1件含める
         def enforce_strict_structure(preds):
-            has_straight = any(classify_numbers3_prize(p[0], p[0]) == "ストレート" for p in preds)
-            if not has_straight:
-                for _ in range(100):
-                    new = random.sample(range(10), 3)
-                    if len(set(new)) == 3:
-                        preds.insert(0, (new, 0.98))
-                        break
-            return preds
+    has_straight = any(classify_numbers3_prize(p[0], p[0]) == "ストレート" for p in preds)
+    if not has_straight:
+        eval_df = safe_load_evaluation_df("evaluation_result.csv")
+        candidates = get_recent_straight_like_candidates(eval_df, lookback_days=90, max_items=10)
+        for cand in candidates:
+            if len(set(cand)) == 3:
+                preds.insert(0, (cand, 0.98))
+                break
+        else:
+            # fallback
+            import random
+            for _ in range(100):
+                new = random.sample(range(10), 3)
+                if len(set(new)) == 3:
+                    preds.insert(0, (new, 0.7))
+                    break
+    return preds
 
         top_predictions = enforce_strict_structure(top_predictions)
 
@@ -1372,7 +1386,7 @@ def ppo_multiagent_predict(historical_data, num_predictions=5):
                     new = random.sample(candidates, 3)
                 else:
                     new = random.sample(range(0, 10), 3)
-                confidence = 0.91
+                confidence = compute_data_driven_confidence(new, historical_data)
 
             elif strategy == "box":
                 # 頻出数字で構成しつつ、前回と同じ構成を避ける
@@ -1382,7 +1396,7 @@ def ppo_multiagent_predict(historical_data, num_predictions=5):
                 if len(new) < 3:
                     new += random.sample([n for n in range(10) if n not in new], 3 - len(new))
                 new = sorted(new[:3])
-                confidence = 0.92
+                confidence = compute_data_driven_confidence(new, historical_data)
 
             else:  # diverse
                 # ランダム構成。ただし前回と完全一致は避ける
@@ -1392,7 +1406,7 @@ def ppo_multiagent_predict(historical_data, num_predictions=5):
                     if set(new) != last_set or trial > 10:
                         break
                     trial += 1
-                confidence = 0.905
+                confidence = compute_data_driven_confidence(new, historical_data)
 
             results.append((new, confidence))
 
@@ -1494,7 +1508,7 @@ def diffusion_generate_predictions(df, num_predictions=5, model_path="diffusion_
         if all(0 <= n <= 9 for n in candidate) and len(set(candidate)) == 3:
             predictions.append(candidate)
 
-    return [(list(p), 0.91) for p in predictions]
+    return [(list(p), compute_data_driven_confidence(list(p), df)) for p in predictions]
 
 def load_trained_model():
     print("[INFO] 外部モデルは未定義のため、Noneを返します。")
@@ -1630,7 +1644,7 @@ def transformer_generate_predictions(df, model_path="transformer_model.pth"):
         output = model(input_tensor)
         prediction = [max(0, min(9, int(round(p.item())))) for p in output.squeeze()]
         print(f"[Transformer] 予測結果: {prediction}")
-        return [(prediction, 0.95)]
+        return [(prediction, compute_data_driven_confidence(prediction, df))]
 
 def evaluate_and_summarize_predictions(
     pred_file="Numbers3_predictions.csv",
@@ -2790,3 +2804,71 @@ if __name__ == "__main__":
     bulk_predict_all_past_draws()
     # main_with_improved_predictions()
     
+
+
+# ==== Injected helpers to replace dummies with real data ====
+
+def compute_data_driven_confidence(numbers, historical_df, cycle_scores=None):
+    """
+    Estimate confidence in [0,1] using digit frequency (recent window)
+    and cycle freshness (lower = better). Robust to missing data.
+    """
+    import numpy as np
+    import pandas as pd
+    try:
+        recent = historical_df.tail(120) if hasattr(historical_df, 'tail') else historical_df
+        digits = []
+        for row in recent["本数字"]:
+            nums = parse_number_string(row)
+            digits.extend(nums)
+        if not digits:
+            return 0.5
+        from collections import Counter
+        cnt = Counter(digits)
+        maxc = max(cnt.values()) if cnt else 1
+        freq = np.mean([(cnt.get(int(n), 0) / maxc) for n in numbers])
+        if cycle_scores is None:
+            try:
+                cycle_scores = calculate_number_cycle_score(historical_df)
+            except Exception:
+                cycle_scores = {}
+        cyc_vals = [cycle_scores.get(int(n), 100) for n in numbers]
+        cyc = 1.0 - (float(np.mean(cyc_vals)) / 100.0)
+        conf = max(0.0, min(1.0, 0.6*float(freq) + 0.4*float(cyc)))
+        return float(conf)
+    except Exception:
+        return 0.5
+
+def safe_load_evaluation_df(path="evaluation_result.csv"):
+    import pandas as pd
+    try:
+        df = pd.read_csv(path)
+        if "抽せん日" in df.columns:
+            df["抽せん日"] = pd.to_datetime(df["抽せん日"], errors='coerce')
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+def get_recent_straight_like_candidates(eval_df, lookback_days=90, max_items=10):
+    import pandas as pd
+    if eval_df is None or eval_df.empty:
+        return []
+    ref_date = eval_df["抽せん日"].max()
+    if pd.isna(ref_date):
+        return []
+    mask = (eval_df["抽せん日"] >= (ref_date - pd.Timedelta(days=lookback_days)))
+    if "等級" in eval_df.columns:
+        mask &= eval_df["等級"].isin(["ストレート", "ボックス"])
+    recent = eval_df[mask]
+    out = []
+    for _, row in recent.iterrows():
+        p = row.get("予測1")
+        try:
+            nums = parse_number_string(p)
+            if len(nums) == 3 and len(set(nums)) == 3:
+                out.append(nums)
+        except Exception:
+            continue
+        if len(out) >= max_items:
+            break
+    return out
