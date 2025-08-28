@@ -1277,6 +1277,40 @@ def evaluate_predictions(predictions, actual_numbers):
 
 from datetime import datetime, timedelta
 
+
+# ==== Helpers (must be defined before use) ====
+def compute_data_driven_confidence(numbers, historical_df, cycle_scores=None):
+    """
+    Estimate confidence in [0,1] using digit frequency (recent window)
+    and cycle freshness (lower = better). Robust to missing data.
+    """
+    import numpy as np
+    import pandas as pd
+    try:
+        recent = historical_df.tail(120) if hasattr(historical_df, 'tail') else historical_df
+        digits = []
+        for row in recent["本数字"]:
+            nums = parse_number_string(row)
+            digits.extend(nums)
+        if not digits:
+            return 0.5
+        from collections import Counter
+        cnt = Counter(digits)
+        maxc = max(cnt.values()) if cnt else 1
+        freq = np.mean([(cnt.get(int(n), 0) / maxc) for n in numbers])
+        if cycle_scores is None:
+            try:
+                cycle_scores = calculate_number_cycle_score(historical_df)
+            except Exception:
+                cycle_scores = {}
+        cyc_vals = [cycle_scores.get(int(n), 100) for n in numbers]
+        cyc = 1.0 - (float(np.mean(cyc_vals)) / 100.0)
+        conf = max(0.0, min(1.0, 0.6*float(freq) + 0.4*float(cyc)))
+        return float(conf)
+    except Exception:
+        return 0.5
+
+
 def calculate_next_draw_date(csv_path="numbers3.csv"):
     try:
         df = pd.read_csv(csv_path)
@@ -2807,37 +2841,6 @@ if __name__ == "__main__":
 
 
 # ==== Injected helpers to replace dummies with real data ====
-
-def compute_data_driven_confidence(numbers, historical_df, cycle_scores=None):
-    """
-    Estimate confidence in [0,1] using digit frequency (recent window)
-    and cycle freshness (lower = better). Robust to missing data.
-    """
-    import numpy as np
-    import pandas as pd
-    try:
-        recent = historical_df.tail(120) if hasattr(historical_df, 'tail') else historical_df
-        digits = []
-        for row in recent["本数字"]:
-            nums = parse_number_string(row)
-            digits.extend(nums)
-        if not digits:
-            return 0.5
-        from collections import Counter
-        cnt = Counter(digits)
-        maxc = max(cnt.values()) if cnt else 1
-        freq = np.mean([(cnt.get(int(n), 0) / maxc) for n in numbers])
-        if cycle_scores is None:
-            try:
-                cycle_scores = calculate_number_cycle_score(historical_df)
-            except Exception:
-                cycle_scores = {}
-        cyc_vals = [cycle_scores.get(int(n), 100) for n in numbers]
-        cyc = 1.0 - (float(np.mean(cyc_vals)) / 100.0)
-        conf = max(0.0, min(1.0, 0.6*float(freq) + 0.4*float(cyc)))
-        return float(conf)
-    except Exception:
-        return 0.5
 
 def safe_load_evaluation_df(path="evaluation_result.csv"):
     import pandas as pd
