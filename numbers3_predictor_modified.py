@@ -1221,7 +1221,7 @@ def enforce_strict_structure(preds):
                 if len(set(new)) == 3:
                     preds.insert(0, (new, 0.7))
                     break
-    return preds
+        return preds
 
         top_predictions = enforce_strict_structure(top_predictions)
 
