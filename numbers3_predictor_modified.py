@@ -27,7 +27,7 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import StackingRegressor
 from statsmodels.tsa.arima.model import ARIMA
 from stable_baselines3 import PPO
-from gym import spaces
+from gymnasium import spaces
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -37,12 +37,11 @@ import matplotlib
 matplotlib.use('Agg')  # ← ★ この行を先に追加！
 import matplotlib.pyplot as plt
 import aiohttp
-from random import shuffle
 import asyncio
 import warnings
 import re
 import platform
-import gym
+import gymnasium as gym
 import sys
 import os
 import random
@@ -53,7 +52,7 @@ import onnxruntime
 import streamlit as st
 from autogluon.tabular import TabularPredictor
 import torch.backends.cudnn
-from datetime import datetime 
+from datetime import datetime, timedelta
 from collections import Counter
 import torch.nn.functional as F
 import math
@@ -94,41 +93,32 @@ def git_commit_and_push(file_path, message):
     except Exception as e:
         print(f"[WARNING] Git commit/push failed: {e}")
 
-def calculate_reward(selected_numbers, winning_numbers, cycle_scores):
-    match_count = len(set(selected_numbers) & set(winning_numbers))
-    avg_cycle_score = np.mean([cycle_scores.get(n, 999) for n in selected_numbers])
-    reward = match_count * 0.5 + max(0, 1 - avg_cycle_score / 50)
-    return reward
-
 class LotoEnv(gym.Env):
     def __init__(self, historical_numbers):
         super(LotoEnv, self).__init__()
         self.historical_numbers = historical_numbers
         self.action_space = spaces.Box(low=0, high=1, shape=(10,), dtype=np.float32)
         self.observation_space = spaces.Box(low=0, high=1, shape=(10,), dtype=np.float32)
-        try:
-            self.cycle_scores = calculate_number_cycle_score(historical_numbers)
-        except Exception:
-            self.cycle_scores = {}
 
     def reset(self):
         return np.zeros(10, dtype=np.float32)
 
-def step(self, action):
-    if action.size == 0:
-        return np.zeros(10, dtype=np.float32), -1.0, True, {}
+    def step(self, action):
+        action = np.clip(action, 0, 1)
+        selected_numbers = list(np.argsort(action)[-4:])
+        winning_numbers = list(np.random.choice(self.historical_numbers, 4, replace=False))
 
-    selected_numbers = set(np.argsort(action)[-3:])
-    target_numbers = set(self.target_numbers_list[self.current_index])
+        prize = classify_numbers3_prize(selected_numbers, winning_numbers)
+        prize_rewards = {
+            "ストレート": 468700,
+            "ボックス": 18700,
+            "はずれ": -100
+        }
 
-    match_count = len(selected_numbers & target_numbers)
-    # cycle_scores を self.cycle_scores で持っていない場合は、適当なデフォルト値を使用する
-    avg_cycle_score = np.mean([self.cycle_scores.get(int(n), 100) for n in selected_numbers]) if isinstance(getattr(self, "cycle_scores", {}), dict) else 100
-    reward = match_count * 0.5 + max(0, 1 - avg_cycle_score / 50)
-
-    done = True
-    obs = np.zeros(10, dtype=np.float32)
-    return obs, reward, done, {}
+        reward = prize_rewards.get(prize, -100)
+        done = True
+        obs = np.zeros(10, dtype=np.float32)
+        return obs, reward, done, False, {}
 
 class DiversityEnv(gym.Env):
     def __init__(self, historical_numbers):
@@ -142,15 +132,11 @@ class DiversityEnv(gym.Env):
         return np.zeros(10, dtype=np.float32)
 
     def step(self, action):
-        if action.size == 0:
-            return np.zeros(10, dtype=np.float32), -1.0, True, {}  # エラー回避
-
-        selected = np.argsort(action)[-3:]  # または[-4:]
-
-        selected = tuple(sorted(np.argsort(action)[-3:]))
+        action = np.clip(action, 0, 1)
+        selected = tuple(sorted(np.argsort(action)[-4:]))
         reward = 1.0 if selected not in self.previous_outputs else -1.0
         self.previous_outputs.add(selected)
-        return np.zeros(10, dtype=np.float32), reward, True, {}
+        return np.zeros(10, dtype=np.float32), reward, True, False, {}
 
 class CycleEnv(gym.Env):
     def __init__(self, historical_numbers):
@@ -164,46 +150,11 @@ class CycleEnv(gym.Env):
         return np.zeros(10, dtype=np.float32)
 
     def step(self, action):
-        if action.size == 0:
-            return np.zeros(10, dtype=np.float32), -1.0, True, {}  # エラー回避
-
-        selected = np.argsort(action)[-3:]  # または[-4:]
-
-        selected = np.argsort(action)[-3:]
+        action = np.clip(action, 0, 1)
+        selected = np.argsort(action)[-4:]
         avg_cycle = np.mean([self.cycle_scores.get(n, 999) for n in selected])
         reward = max(0, 1 - (avg_cycle / 50))
-        return np.zeros(10, dtype=np.float32), reward, True, {}
-
-class ProfitLotoEnv(gym.Env):
-    def __init__(self, historical_numbers):
-        super(ProfitLotoEnv, self).__init__()
-        self.historical_numbers = historical_numbers
-        self.action_space = spaces.Box(low=0, high=1, shape=(10,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=0, high=1, shape=(10,), dtype=np.float32)
-
-    def reset(self):
-        return np.zeros(10, dtype=np.float32)
-
-    def step(self, action):
-        if action.size == 0:
-            return np.zeros(10, dtype=np.float32), -1.0, True, {}  # エラー回避
-
-        selected = np.argsort(action)[-3:]  # または[-4:]
-
-        selected = list(np.argsort(action)[-3:])
-        reward_table = {
-            "ストレート": 90000,
-            "ボックス": 10000,
-            "ミニ": 4000,
-            "はずれ": -200
-        }
-        best_reward = -200
-        for winning in self.historical_numbers:
-            result = classify_numbers3_prize(selected, winning)
-            reward = reward_table.get(result, -200)
-            if reward > best_reward:
-                best_reward = reward
-        return np.zeros(10, dtype=np.float32), best_reward, True, {}
+        return np.zeros(10, dtype=np.float32), reward, True, False, {}
 
 class MultiAgentPPOTrainer:
     def __init__(self, historical_data, total_timesteps=5000):
@@ -215,8 +166,7 @@ class MultiAgentPPOTrainer:
         envs = {
             "accuracy": LotoEnv(self.historical_data),
             "diversity": DiversityEnv(self.historical_data),
-            "cycle": CycleEnv(self.historical_data),
-            "profit": ProfitLotoEnv(self.historical_data)  # ★ ここを追加
+            "cycle": CycleEnv(self.historical_data)
         }
 
         for name, env in envs.items():
@@ -231,7 +181,7 @@ class MultiAgentPPOTrainer:
             obs = model.env.reset()
             for _ in range(num_candidates // 3):
                 action, _ = model.predict(obs)
-                selected = list(np.argsort(action)[-3:])
+                selected = list(np.argsort(action)[-4:])
                 predictions.append((selected, 0.9))  # 信頼度は仮
         return predictions
 
@@ -252,19 +202,16 @@ class AdversarialLotoEnv(gym.Env):
         return np.zeros(10, dtype=np.float32)
 
     def step(self, action):
-        if action.size == 0:
-            return np.zeros(10, dtype=np.float32), -1.0, True, {}
-
+        action = np.clip(action, 0, 1)
         selected_numbers = set(np.argsort(action)[-3:])
         target_numbers = set(self.target_numbers_list[self.current_index])
 
-        match_count = len(selected_numbers & target_numbers)
-        avg_cycle_score = np.mean([self.cycle_scores.get(n, 999) for n in selected_numbers])
-        reward = match_count * 0.5 + max(0, 1 - avg_cycle_score / 50)
+        main_match = len(selected_numbers & target_numbers)
+        reward = main_match / 3  # 部分一致率を報酬とする
 
         done = True
         obs = np.zeros(10, dtype=np.float32)
-        return obs, reward, done, {}
+        return obs, reward, done, False, {}
 
 def score_real_structure_similarity(numbers):
     """
@@ -447,64 +394,6 @@ def calculate_prediction_errors(predictions, actual_numbers):
     
     return np.mean(errors)
 
-def enforce_grade_structure(predictions, min_required=3):
-    """ストレート・ボックス・ミニ構成を必ず含める (origin対応版)"""
-    from itertools import permutations
-
-    forced = []
-    used = set()
-
-    # ストレート構成（そのまま）
-    for pred in predictions:
-        if len(pred) == 3:
-            numbers, conf, origin = pred
-        else:
-            numbers, conf = pred
-            origin = "Unknown"
-
-        t = tuple(numbers)
-        if t not in used:
-            used.add(t)
-            forced.append((t, conf, origin))
-            if len(forced) >= 1:
-                break
-
-    # ボックス構成（並び替え）
-    for pred in predictions:
-        if len(pred) == 3:
-            numbers, conf, origin = pred
-        else:
-            numbers, conf = pred
-            origin = "Unknown"
-
-        for perm in permutations(numbers):
-            if perm not in used:
-                used.add(perm)
-                forced.append((perm, conf, origin))
-                break
-        if len(forced) >= 2:
-            break
-
-    # ミニ構成（2数字一致）
-    for pred in predictions:
-        if len(pred) == 3:
-            numbers, conf, origin = pred
-        else:
-            numbers, conf = pred
-            origin = "Unknown"
-
-        for known in used:
-            if len(set(numbers) & set(known)) == 2:
-                t = tuple(numbers)
-                if t not in used:
-                    used.add(t)
-                    forced.append((t, conf, origin))
-                    break
-        if len(forced) >= min_required:
-            break
-
-    return forced + predictions
-
 def delete_old_generation_files(directory, days=1):
     """指定フォルダ内で、指定日数より古いCSVファイルを削除"""
     now = datetime.now()
@@ -565,14 +454,7 @@ def save_self_predictions(predictions, file_path="self_predictions.csv", max_rec
     # 🧹 古いファイルを自動削除（1日以上前のファイルを削除）
     delete_old_generation_files(gen_dir, days=1)
 
-def load_self_predictions(
-    file_path="self_predictions.csv",
-    min_match_threshold=3,
-    true_data=None,
-    min_grade="ボックス",
-    return_with_freq=True,
-    max_date=None  # ← ★ 追加
-):
+def load_self_predictions(file_path="self_predictions.csv", min_match_threshold=3, true_data=None):
     if not os.path.exists(file_path):
         print(f"[INFO] 自己予測ファイル {file_path} が見つかりません。")
         return None
@@ -583,71 +465,41 @@ def load_self_predictions(
 
     try:
         df = pd.read_csv(file_path, header=None).dropna()
-        col_count = df.shape[1]
 
-        if col_count < 4:
-            print(f"[WARNING] 4列未満のため無効です: {file_path}")
-            return None
+        # 4桁予測番号の列を取り出し
+        number_cols = df.iloc[:, :4].astype(int)
+        numbers_list = number_cols.values.tolist()
 
-        # 列名を動的に設定
-        columns = ["d1", "d2", "d3", "conf", "match", "grade"]
-        df.columns = columns[:col_count]
-
-        df[["d1", "d2", "d3"]] = df[["d1", "d2", "d3"]].astype(int)
-
-            # 🔒 未来データ除外フィルタ（抽せん日があれば）
-        if "抽せん日" in df.columns and max_date is not None:
-            df["抽せん日"] = pd.to_datetime(df["抽せん日"], errors='coerce')
-            df = df[df["抽せん日"] <= pd.to_datetime(max_date)]
-
-        if "match" not in df.columns:
-            df["match"] = 0
-        else:
-            df["match"] = pd.to_numeric(df["match"], errors='coerce').fillna(0).astype(int)
-
-        if "grade" not in df.columns:
-            df["grade"] = "-"
-
-        # 等級フィルタ（grade列がある場合のみ）
-        valid_grades = ["ミニ", "ボックス", "ストレート"]
-        if min_grade in valid_grades and "grade" in df.columns:
-            df = df[df["grade"].isin(valid_grades[valid_grades.index(min_grade):])]
-
-        # 一致数フィルタ（match列がある場合のみ）
-        if "match" in df.columns:
-            df = df[df["match"] >= min_match_threshold]
-
-        if df.empty:
-            print(f"[INFO] 条件を満たすデータがありません: {file_path}")
-            return None
-
-        numbers_list = df[["d1", "d2", "d3"]].values.tolist()
-
-        # 真のデータに基づいて再評価
         if true_data is not None:
             scores = evaluate_self_predictions(numbers_list, true_data)
-            df["eval_match"] = scores
-            df = df[df["eval_match"] >= min_match_threshold]
-            if df.empty:
-                print(f"[INFO] 評価後に一致数{min_match_threshold}+を満たすデータがありません")
-                return None
-            numbers_list = df[["d1", "d2", "d3"]].values.tolist()
 
-        if return_with_freq:
+            # ✅ 高一致数のみを収集
+            valid_predictions = []
+            for pred, match in zip(numbers_list, scores):
+                if match >= min_match_threshold:
+                    valid_predictions.append(tuple(pred))
+
+            # ✅ 出現頻度つきで返す
             from collections import Counter
-            freq = Counter([tuple(x) for x in numbers_list])
-            sorted_preds = sorted(freq.items(), key=lambda x: -x[1])
-            print(f"[INFO] 自己予測（{min_grade}+一致数{min_match_threshold}+）: {len(sorted_preds)}件")
-            return sorted_preds
-        else:
-            print(f"[INFO] 自己予測（{min_grade}+一致数{min_match_threshold}+）: {len(numbers_list)}件")
-            return numbers_list
+            freq = Counter(valid_predictions)
+            sorted_preds = sorted(freq.items(), key=lambda x: -x[1])  # 回数降順
+
+            print(f"[INFO] 一致数{min_match_threshold}以上の自己予測（重複集計あり）: {len(sorted_preds)}件")
+            return sorted_preds  # ← [(番号タプル, 出現回数)] 形式
+
+        return numbers_list
 
     except Exception as e:
         print(f"[ERROR] 自己予測読み込みエラー: {e}")
         return None
 
 def evaluate_self_predictions(self_predictions, true_data):
+    """
+    自己予測リストと本物データを比較して一致数を評価
+    :param self_predictions: [[5,12,17,22,30,34,37], ...]
+    :param true_data: 過去の本物本数字データ（data['本数字'].tolist()）
+    :return: 各自己予測に対応する最大一致数リスト
+    """
     scores = []
     true_sets = [set(nums) for nums in true_data]
 
@@ -682,6 +534,16 @@ def update_features_based_on_results(data, accuracy_results):
     data["過去の予測信頼度"] = data["過去の予測信頼度"].fillna(0)
 
     return data
+
+def retrain_meta_classifier(evaluation_df):
+    from sklearn.ensemble import RandomForestClassifier
+    df = evaluation_df.copy()
+    df["hit"] = df["等級"].isin(["ミニ", "ボックス", "ストレート"]).astype(int)
+    X = df[["信頼度"]].values
+    y = df["hit"].values
+    clf = RandomForestClassifier()
+    clf.fit(X, y)
+    return clf
 
 class LotoLSTM(nn.Module):
     def __init__(self, input_size, hidden_size):
@@ -743,6 +605,10 @@ def train_lstm_model(X_train, y_train, input_size, device):
     print("[INFO] LSTM モデルのトレーニングが完了")
     return model
 
+def extract_high_accuracy_combinations(evaluation_df, threshold=2):
+    high_matches = evaluation_df[evaluation_df["本数字一致数"] >= threshold]
+    return high_matches
+
 def transform_to_digit_labels(numbers_series):
     y1, y2, y3 = [], [], []
     for entry in numbers_series:
@@ -789,38 +655,17 @@ class MemoryEncoder(nn.Module):
 class GPT3Numbers(nn.Module):
     def __init__(self, vocab_size=10, embed_dim=64, num_heads=4, num_layers=3):
         super().__init__()
-        self.vocab_size = vocab_size
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.pos_encoding = PositionalEncoding(embed_dim)
         decoder_layer = nn.TransformerDecoderLayer(d_model=embed_dim, nhead=num_heads)
         self.decoder = nn.TransformerDecoder(decoder_layer, num_layers)
-        self.fc_out = nn.Linear(embed_dim, vocab_size)  # 出力: 各桁は 0〜9 の分類
+        self.fc_out = nn.Linear(embed_dim, vocab_size)
 
     def forward(self, tgt, memory):
-        """
-        tgt: Tensor[seq_len, batch] → 予測対象の桁列（例: 1桁ずつ）
-        memory: Tensor[seq_len_enc, batch, dim] → 過去の履歴（エンコーダ出力）
-        """
         tgt_embed = self.embedding(tgt)  # (seq_len, batch, embed_dim)
-        tgt_embed = self.pos_encoding(tgt_embed)
-        decoded = self.decoder(tgt_embed, memory)  # (seq_len, batch, embed_dim)
-        out = self.fc_out(decoded)  # (seq_len, batch, vocab_size)
-        return out  # 各桁の logits（softmax不要）
-
-class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, max_len=50):
-        super().__init__()
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len).unsqueeze(1).float()
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(1)  # [max_len, 1, d_model]
-        self.register_buffer('pe', pe)
-
-    def forward(self, x):
-        x = x + self.pe[:x.size(0)]
-        return x
+        tgt_embed = self.pos_encoding(tgt_embed)  # (seq_len, batch, embed_dim)
+        output = self.decoder(tgt_embed, memory)  # (seq_len, batch, embed_dim)
+        return self.fc_out(output)  # (seq_len, batch, vocab_size)
 
 def build_memory_from_history(history_sequences, encoder, device):
     if not history_sequences:
@@ -839,7 +684,7 @@ def build_memory_from_history(history_sequences, encoder, device):
 
 def train_gpt3numbers_model_with_memory(
     save_path="gpt3numbers.pth",
-    encoder_path="memory_encoder_3.pth",
+    encoder_path="memory_encoder.pth",
     epochs=50
 ):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -852,18 +697,18 @@ def train_gpt3numbers_model_with_memory(
     try:
         df = pd.read_csv("numbers3.csv")
         df["本数字"] = df["本数字"].apply(parse_number_string)
-        sequences = [row for row in df["本数字"] if isinstance(row, list) and len(row) == 3]
+        sequences = [row for row in df["本数字"] if isinstance(row, list) and len(row) == 4]
     except Exception as e:
         print(f"[ERROR] 学習データ読み込みエラー: {e}")
         return decoder, encoder
 
-    # 学習データ（1〜2桁 → 次の1桁）
+    # 学習データ（3桁 → 次の1桁）
     data = []
     for seq in sequences:
-        for i in range(1, 3):
+        for i in range(1, 4):
             context = seq[:i]
             target = seq[i]
-            history = sequences[:sequences.index(seq)]
+            history = sequences[:sequences.index(seq)]  # それ以前の履歴を memory に
             data.append((context, target, history[-10:]))
 
     if not data:
@@ -876,13 +721,13 @@ def train_gpt3numbers_model_with_memory(
         random.shuffle(data)
         total_loss = 0
         for context, target, hist in data:
-            tgt = torch.tensor(context, dtype=torch.long).unsqueeze(1).to(device)
-            target_tensor = torch.tensor([target], dtype=torch.long).to(device)
+            tgt = torch.tensor(context, dtype=torch.long).unsqueeze(1).to(device)  # shape: [seq_len, 1]
+            target_tensor = torch.tensor([target], dtype=torch.long).to(device)    # shape: [1]
 
-            memory = build_memory_from_history(hist, encoder, device)
+            memory = build_memory_from_history(hist, encoder, device)  # shape: [mem_len, 1, embed_dim]
 
-            output = decoder(tgt, memory)
-            last_output = output[-1, 0].unsqueeze(0)
+            output = decoder(tgt, memory)  # shape: [seq_len, 1, vocab_size]
+            last_output = output[-1, 0].unsqueeze(0)  # shape: [1, vocab_size]
 
             loss = criterion(last_output, target_tensor)
 
@@ -892,7 +737,7 @@ def train_gpt3numbers_model_with_memory(
             total_loss += loss.item()
 
         if (epoch + 1) % 10 == 0 or epoch == 0:
-            print(f"[GPT3-MEM] Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(data):.4f}")
+            print(f"[GPT-MEM] Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(data):.4f}")
 
     torch.save(decoder.state_dict(), save_path)
     torch.save(encoder.state_dict(), encoder_path)
@@ -900,7 +745,7 @@ def train_gpt3numbers_model_with_memory(
     print(f"[INFO] MemoryEncoder 保存: {encoder_path}")
     return decoder, encoder
 
-def gpt_generate_predictions_with_memory_3(decoder, encoder, history_sequences, num_samples=5):
+def gpt_generate_predictions_with_memory(decoder, encoder, history_sequences, num_samples=5):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     decoder.eval()
     encoder.eval()
@@ -910,15 +755,15 @@ def gpt_generate_predictions_with_memory_3(decoder, encoder, history_sequences, 
 
     for _ in range(num_samples):
         seq = [random.randint(0, 9)]
-        for _ in range(2):  # → 合計3桁になるように2回だけ追加
+        for _ in range(3):
             tgt = torch.tensor(seq, dtype=torch.long).unsqueeze(1).to(device)
             with torch.no_grad():
                 logits = decoder(tgt, memory)
                 next_digit = int(torch.argmax(logits[-1]).item())
             seq.append(next_digit)
 
-        if len(set(seq)) == 3:
-            predictions.append((seq, compute_data_driven_confidence(seq, pd.DataFrame({"本数字": history_sequences}))))
+        if len(set(seq)) == 4:
+            predictions.append((seq, 0.91))
 
     return predictions
 
@@ -939,7 +784,7 @@ def gpt_generate_predictions(model, num_samples=5, context_length=4):
                 next_token = torch.argmax(logits[-1]).item()
                 seq.append(next_token)
         if len(set(seq)) == 4:
-            predictions.append((seq, compute_data_driven_confidence(seq, pd.DataFrame({"本数字": history_sequences}))))  # 信頼度は仮
+            predictions.append((seq, 0.89))  # 信頼度は仮
     return predictions
 
 def train_gpt3numbers_model(save_path="gpt3numbers.pth", epochs=50):
@@ -951,16 +796,17 @@ def train_gpt3numbers_model(save_path="gpt3numbers.pth", epochs=50):
     try:
         df = pd.read_csv("numbers3.csv")
         df["本数字"] = df["本数字"].apply(parse_number_string)
-        sequences = [row for row in df["本数字"] if isinstance(row, list) and len(row) == 3]
+        sequences = [row for row in df["本数字"] if isinstance(row, list) and len(row) == 4]
     except Exception as e:
         print(f"[ERROR] 学習データ読み込みエラー: {e}")
         return model
 
+    # 💡 学習データの準備（3桁 → 次の1桁）
     data = []
     for seq in sequences:
-        for i in range(len(seq) - 1):  # 例: [2,5,3] → ([2],5), ([2,5],3)
-            context = seq[:i + 1]
-            target = seq[i + 1]
+        for i in range(len(seq) - 1):  # ex: [2,5,3,8] → ([2,5,3], 8)
+            context = seq[:i+1]
+            target = seq[i+1]
             if len(context) >= 1:
                 data.append((context, target))
 
@@ -970,15 +816,16 @@ def train_gpt3numbers_model(save_path="gpt3numbers.pth", epochs=50):
 
     print(f"[INFO] GPT3Numbers 学習データ件数: {len(data)}")
 
+    # === 学習ループ ===
     for epoch in range(epochs):
         random.shuffle(data)
         total_loss = 0
         for context, target in data:
-            tgt = torch.tensor(context, dtype=torch.long).unsqueeze(1).to(device)
-            memory = torch.zeros((1, 1, model.embedding.embedding_dim), dtype=torch.float32).to(device)
+            tgt = torch.tensor(context, dtype=torch.long).unsqueeze(1).to(device)  # (seq_len, batch=1)
+            memory = torch.zeros_like(tgt, dtype=torch.float32).to(device)         # ダミーメモリ
             target_tensor = torch.tensor([target], dtype=torch.long).to(device)
 
-            output = model(tgt, memory)[-1].unsqueeze(0)
+            output = model(tgt, memory)[-1].unsqueeze(0)  # 最後の出力トークン
             loss = criterion(output, target_tensor)
 
             optimizer.zero_grad()
@@ -988,20 +835,11 @@ def train_gpt3numbers_model(save_path="gpt3numbers.pth", epochs=50):
 
         if (epoch + 1) % 10 == 0 or epoch == 0:
             avg_loss = total_loss / len(data)
-            print(f"[GPT3] Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}")
+            print(f"[GPT] Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}")
 
     torch.save(model.state_dict(), save_path)
     print(f"[INFO] GPT3Numbers モデルを保存しました: {save_path}")
     return model
-
-def extract_high_accuracy_predictions_from_result(file="evaluation_result.csv", min_match=3, valid_grades=("ミニ", "ボックス", "ストレート")):
-    df = pd.read_csv(file)
-    df = df[df["本数字一致数_1"] >= min_match]
-    df = df[df["等級"] != "はずれ"]
-    df = df[df["等級"].isin(valid_grades)]
-    preds = [eval(x) for x in df["予測1"]]
-    print(f"[INFO] 高一致かつ等級あり予測件数: {len(preds)}")
-    return preds
 
 class LotoPredictor:
     def __init__(self, input_size, hidden_size):
@@ -1013,53 +851,13 @@ class LotoPredictor:
         self.scaler = None
         self.feature_names = None
         self.meta_model = None
-        self.meta_model = load_meta_model()
 
-    def train_model(self, data, reference_date=None):
+    def train_model(self, data):
         print("[INFO] Numbers3学習開始")
-
-        # === 未来データ除外 ===
-        data["抽せん日"] = pd.to_datetime(data["抽せん日"], errors='coerce')
-        latest_draw_date = reference_date or data["抽せん日"].max()
-        data = data[data["抽せん日"] <= latest_draw_date]
-        print(f"[INFO] 未来データ除外後: {len(data)}件（{latest_draw_date.date()} 以前）")
-
         true_numbers = data['本数字'].apply(lambda x: parse_number_string(x)).tolist()
 
-        # === 🔁 evaluation_result.csv 読み込み（1回だけ） ===
-        try:
-            eval_df = pd.read_csv("evaluation_result.csv")
-            eval_df["抽せん日"] = pd.to_datetime(eval_df["抽せん日"], errors="coerce")
-            eval_df = eval_df[eval_df["抽せん日"] <= latest_draw_date]
-        except Exception as e:
-            print(f"[WARNING] evaluation_result.csv 読み込み失敗: {e}")
-            eval_df = pd.DataFrame()
-
-        # === ① ストレート的中（過去30日以内）を再学習に追加
-        if not eval_df.empty:
-            recent_hits = eval_df[
-                (eval_df["等級"] == "ストレート") &
-                (eval_df["抽せん日"] >= latest_draw_date - pd.Timedelta(days=30))
-            ]
-            if not recent_hits.empty:
-                preds = recent_hits["予測1"].dropna().apply(lambda x: eval(x) if isinstance(x, str) else x)
-                synthetic_rows_eval = pd.DataFrame({
-                    '抽せん日': [latest_draw_date] * len(preds),
-                    '本数字': preds.tolist()
-                })
-                data = pd.concat([data, synthetic_rows_eval], ignore_index=True)
-                print(f"[INFO] ✅ ストレート的中データ追加: {len(synthetic_rows_eval)}件")
-            else:
-                print("[INFO] ストレート的中（過去30日以内）なし")
-
-        # === ② 自己予測から一致2+のボックス/ストレート構成を追加
-        self_data = load_self_predictions(
-            file_path="self_predictions.csv",
-            min_match_threshold=2,
-            true_data=true_numbers,
-            max_date=latest_draw_date  # 🔒 未来データ除外
-        )
-        added_self = 0
+        # 高等級一致のみ自己予測から再投入
+        self_data = load_self_predictions(file_path="self_predictions.csv", min_match_threshold=2, true_data=true_numbers)
         if self_data:
             high_grade_predictions = []
             seen = set()
@@ -1075,162 +873,110 @@ class LotoPredictor:
 
             if high_grade_predictions:
                 synthetic_rows = pd.DataFrame({
-                    '抽せん日': [latest_draw_date] * sum(count for _, count in high_grade_predictions),
+                    '抽せん日': pd.Timestamp.now(),
                     '本数字': [row[0] for row in high_grade_predictions for _ in range(row[1])]
                 })
                 data = pd.concat([data, synthetic_rows], ignore_index=True)
-                added_self = len(synthetic_rows)
-        print(f"[INFO] ✅ 自己進化データ追加: {added_self}件")
+                print(f"[INFO] 自己進化データ追加: {len(synthetic_rows)}件")
 
-        # === ③ PPO出力から一致2+の構成を追加（評価対象は最新抽せん日まで）
-        try:
-            ppo_predictions = ppo_multiagent_predict(data, num_predictions=5)
-            matched_predictions = []
-            for pred, conf in ppo_predictions:
-                for actual in true_numbers:
-                    match_count = len(set(pred) & set(actual))
-                    grade = classify_numbers3_prize(pred, actual)
-                    if match_count >= 2 and grade in ["ボックス", "ストレート"]:
-                        matched_predictions.append(pred)
-                        break
-            if matched_predictions:
-                synthetic_rows_ppo = pd.DataFrame({
-                    '抽せん日': [latest_draw_date] * len(matched_predictions),
-                    '本数字': matched_predictions
-                })
-                data = pd.concat([data, synthetic_rows_ppo], ignore_index=True)
-                print(f"[INFO] ✅ PPO補強データ追加: {len(synthetic_rows_ppo)}件")
-            else:
-                print("[INFO] PPO出力に一致数2+の高等級データは見つかりませんでした")
-        except Exception as e:
-            print(f"[WARNING] PPO補強データ抽出に失敗: {e}")
+        X, _, self.scaler = preprocess_data(data)
+        if X is None:
+            return
 
-        # === ④ evaluation_result.csv から一致数2+のボックス/ストレートを追加
-        if not eval_df.empty:
-            eval_df["本数字一致数_1"] = eval_df.get("本数字一致数_1", 0)
-            matched = eval_df[
-                (eval_df["本数字一致数_1"] >= 2) &
-                (eval_df["等級"].isin(["ボックス", "ストレート"]))
-            ]
-            if not matched.empty:
-                preds = matched["予測1"].dropna().apply(lambda x: eval(x) if isinstance(x, str) else x)
-                synthetic_rows_eval = pd.DataFrame({
-                    '抽せん日': [latest_draw_date] * len(preds),
-                    '本数字': preds.tolist()
-                })
-                data = pd.concat([data, synthetic_rows_eval], ignore_index=True)
-                print(f"[INFO] ✅ 過去評価から一致2+の予測再学習: {len(synthetic_rows_eval)}件")
-            else:
-                print("[INFO] 一致数2以上の再学習用データは見つかりませんでした")
+        processed_data = create_advanced_features(data)
+        y1, y2, y3 = transform_to_digit_labels(processed_data['本数字'])[:3]
+        self.feature_names = [str(i) for i in range(X.shape[1])]
+        X = reinforce_top_features(X, self.feature_names, y1)
+        X_df = pd.DataFrame(X, columns=self.feature_names)
+
+        for i, y in enumerate([y1, y2, y3]):
+            df_train = X_df.copy()
+            df_train['target'] = y
+            predictor = TabularPredictor(label='target', path=f'autogluon_n3_pos{i}').fit(df_train, time_limit=300)
+            self.regression_models[i] = predictor
+            print(f"[AutoGluon] モデル {i+1}/3 完了")
+
+        # LSTM訓練
+        input_size = X.shape[1]
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = LotoLSTM(input_size, 128).to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+        criterion = torch.nn.CrossEntropyLoss()
+
+        X_tensor = torch.tensor(X.reshape(-1, 1, input_size), dtype=torch.float32).to(device)
+        y_tensors = [torch.tensor(y, dtype=torch.long).to(device) for y in [y1, y2, y3]]
+        dataset = TensorDataset(X_tensor, *y_tensors)
+        loader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+        model.train()
+        for epoch in range(50):
+            total_loss = 0
+            for batch in loader:
+                inputs = batch[0]
+                targets = batch[1:]
+                optimizer.zero_grad()
+                outputs = model(inputs)[:3]  # 3桁に限定
+                losses = [criterion(out, target) for out, target in zip(outputs, targets)]
+                loss = sum(losses)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+            print(f"[LSTM] Epoch {epoch+1}, Loss: {total_loss/len(loader):.4f}")
+
+        self.lstm_model = model
+        self.meta_model = train_meta_model_maml("evaluation_result.csv", data)
 
     def predict(self, latest_data, num_candidates=50):
         print("[INFO] Numbers3予測開始")
-
-        # === 前処理 ===
         X, _, _ = preprocess_data(latest_data)
         if X is None:
             return None, None
 
         X_df = pd.DataFrame(X, columns=self.feature_names)
-        input_size = X.shape[1]
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-        # === AutoGluonの各桁予測 ===
-        pred_digits = [self.regression_models[i].predict(X_df) for i in range(3)]
+        pred_digits = []
+        for i in range(3):  # 3桁
+            pred = self.regression_models[i].predict(X_df)
+            pred_digits.append(pred)
         auto_preds = np.array(pred_digits).T
 
-        # === LSTM予測 ===
-        X_tensor = torch.tensor(X.reshape(-1, 1, input_size), dtype=torch.float32).to(device)
+        input_size = X.shape[1]
+        X_tensor = torch.tensor(X.reshape(-1, 1, input_size), dtype=torch.float32)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.lstm_model.to(device)
         self.lstm_model.eval()
         with torch.no_grad():
-            outputs = self.lstm_model(X_tensor)[:3]
+            outputs = self.lstm_model(X_tensor.to(device))[:3]
             lstm_preds = [torch.argmax(out, dim=1).cpu().numpy() for out in outputs]
         lstm_preds = np.array(lstm_preds).T
 
-        # === 周期スコア取得
-        cycle_scores = calculate_number_cycle_score(latest_data)
-
-        # === 候補生成とスコアリング
-        candidates = []
+        all_predictions = []
         for i in range(min(len(auto_preds), len(lstm_preds))):
-            merged = (0.5 * auto_preds[i] + 0.5 * lstm_preds[i]).round().astype(int)
+            merged = (0.7 * auto_preds[i] + 0.3 * lstm_preds[i]).round().astype(int)
             numbers = list(map(int, merged))
 
             if len(set(numbers)) < 3:
                 continue
-
-            structure_score = score_real_structure_similarity(numbers)
-            if structure_score < 0.3:
-                continue
-
-            avg_cycle = np.mean([cycle_scores.get(n, 99) for n in numbers])
-            if avg_cycle >= 70:  # 周期スコアでスクリーニング
+            if score_real_structure_similarity(numbers) < 0.3:
                 continue
 
             base_conf = 1.0
             corrected_conf = base_conf
-            predicted_match = 0
             if self.meta_model:
                 try:
-                    extended_features = np.concatenate([
-                        X_df.iloc[i].values,
-                        [structure_score, avg_cycle]
-                    ]).reshape(1, -1)
-                    predicted_match = self.meta_model.predict(extended_features)[0]
+                    feat_vec = X_df.iloc[i].values.reshape(1, -1)
+                    predicted_match = self.meta_model.predict(feat_vec)[0]
                     corrected_conf = max(0.0, min(predicted_match / 3.0, 1.0))
-                except Exception as e:
-                    print(f"[WARNING] メタ分類器の補正失敗: {e}")
-                    corrected_conf = base_conf
+                    final_conf = 0.5 * base_conf + 0.5 * corrected_conf
+                except:
+                    final_conf = base_conf
+            else:
+                final_conf = base_conf
 
-            final_conf = 0.5 * base_conf + 0.5 * corrected_conf
+            all_predictions.append((numbers, final_conf))
 
-            # 優先スコア（構造 + 信頼度 + 周期スコア逆転 + メタ補正）
-            priority_score = (
-                0.3 * structure_score +
-                0.3 * final_conf +
-                0.2 * (1 - avg_cycle / 100) +
-                0.2 * (predicted_match / 3 if self.meta_model else 0)
-            )
-
-            candidates.append({
-                "numbers": numbers,
-                "confidence": final_conf,
-                "score": priority_score
-            })
-
-        # === 上位候補を選抜
-        sorted_candidates = sorted(candidates, key=lambda x: -x["score"])
-        top_predictions = [(c["numbers"], c["confidence"]) for c in sorted_candidates[:num_candidates]]
-
-        # === ストレート構成を強制的に1件含める
-def enforce_strict_structure(preds):
-    has_straight = any(classify_numbers3_prize(p[0], p[0]) == "ストレート" for p in preds)
-    if not has_straight:
-        eval_df = safe_load_evaluation_df("evaluation_result.csv")
-        candidates = get_recent_straight_like_candidates(eval_df, lookback_days=90, max_items=10)
-        for cand in candidates:
-            if len(set(cand)) == 3:
-                preds.insert(0, (cand, 0.98))
-                break
-        else:
-            # fallback
-            import random
-            for _ in range(100):
-                new = random.sample(range(10), 3)
-                if len(set(new)) == 3:
-                    preds.insert(0, (new, 0.7))
-                    break
-        return preds
-
-        top_predictions = enforce_strict_structure(top_predictions)
-
-        return top_predictions, [conf for _, conf in top_predictions]
+        return all_predictions[:num_candidates], [c for _, c in all_predictions[:num_candidates]]
 
 def classify_numbers3_prize(pred, actual):
-    if len(pred) != 3 or len(actual) != 3:
-        return "はずれ"
-
     pred = list(map(int, pred))
     actual = list(map(int, actual))
 
@@ -1260,9 +1006,9 @@ def evaluate_predictions(predictions, actual_numbers):
     for pred in predictions:
         match_type = classify_numbers3_prize(pred[0], actual_numbers)
         if match_type == "ストレート":
-            reward = 90000
+            reward = 900000
         elif match_type == "ボックス":
-            reward = 15000
+            reward = 37500
         else:
             reward = 0
             
@@ -1275,72 +1021,218 @@ def evaluate_predictions(predictions, actual_numbers):
         })
     return results
 
-from datetime import datetime, timedelta
+# 追加: 最新の抽せん日を取得する関数
+official_url = "https://www.takarakuji-official.jp/ec/numbers3/"
 
+async def fetch_drawing_dates():
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(official_url, timeout=10) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, 'html.parser')
+                    
+                    drawing_dates = []
+                    date_elements = soup.select("dl.m_param.m_thumbSet_row")
+                    for dl in date_elements:
+                        dt_element = dl.find("dt", string="抽せん日")
+                        if dt_element:
+                            dd_element = dt_element.find_next_sibling("dd")
+                            if dd_element:
+                                formatted_date = dd_element.text.strip().replace("/", "-")
+                                drawing_dates.append(formatted_date)
+                    
+                    return drawing_dates
+                else:
+                    print(f"HTTPエラー {response.status}: {official_url}")
+        except Exception as e:
+            print(f"抽せん日取得エラー: {e}")
+    return []
 
-# ==== Helpers (must be defined before use) ====
-def compute_data_driven_confidence(numbers, historical_df, cycle_scores=None):
+async def get_latest_drawing_dates():
+    dates = await fetch_drawing_dates()
+    return dates
+
+def calculate_number_cycle_score(historical_numbers):
     """
-    Estimate confidence in [0,1] using digit frequency (recent window)
-    and cycle freshness (lower = better). Robust to missing data.
+    過去の出現履歴から 0〜9 各数字の「平均サイクル長」（再出現までの間隔）を計算して返す。
+    戻り値: {digit: avg_gap} （小さいほど最近・頻繁に出ている）
+    入力は DataFrame（'本数字' 列に3桁リスト）でも、リスト/ndarray の列挙でもOK。
     """
+    seq = []
+    try:
+        import pandas as pd  # noqa: F401
+        if hasattr(historical_numbers, "get") or hasattr(historical_numbers, "__getitem__"):
+            if "本数字" in getattr(historical_numbers, "columns", []):
+                for row in historical_numbers["本数字"]:
+                    nums = parse_number_string(row)
+                    for n in nums:
+                        try:
+                            nn = int(n)
+                            if 0 <= nn <= 9:
+                                seq.append(nn)
+                        except Exception:
+                            continue
+            else:
+                for x in historical_numbers:
+                    if isinstance(x, (list, tuple)):
+                        for n in x:
+                            try:
+                                nn = int(n)
+                                if 0 <= nn <= 9:
+                                    seq.append(nn)
+                            except Exception:
+                                continue
+                    else:
+                        try:
+                            nn = int(x)
+                            if 0 <= nn <= 9:
+                                seq.append(nn)
+                        except Exception:
+                            continue
+        else:
+            for x in historical_numbers:
+                if isinstance(x, (list, tuple)):
+                    for n in x:
+                        try:
+                            nn = int(n)
+                            if 0 <= nn <= 9:
+                                seq.append(nn)
+                        except Exception:
+                            continue
+                else:
+                    try:
+                        nn = int(x)
+                        if 0 <= nn <= 9:
+                            seq.append(nn)
+                    except Exception:
+                        continue
+    except Exception:
+        seq = []
+
+    last_idx = {d: None for d in range(10)}
+    gaps = {d: [] for d in range(10)}
+    for i, d in enumerate(seq):
+        if last_idx[d] is not None:
+            gaps[d].append(i - last_idx[d])
+        last_idx[d] = i
+
+    scores = {}
+    for d in range(10):
+        if len(gaps[d]) > 0:
+            scores[d] = float(sum(gaps[d]) / len(gaps[d]))
+        else:
+            scores[d] = 999.0
+    return scores
+
+class PositionalEncoding(torch.nn.Module):
+    def __init__(self, d_model: int, max_len: int = 5000, dropout: float = 0.0):
+        super().__init__()
+        self.dropout = torch.nn.Dropout(p=dropout)
+
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float32).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2, dtype=torch.float32) * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        if d_model % 2 == 1:
+            pe[:, 1::2] = torch.cos(position * div_term[:-1])
+        else:
+            pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(1)  # (max_len, 1, d_model)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        # x: (seq_len, batch, d_model)
+        seq_len = x.size(0)
+        x = x + self.pe[:seq_len]
+        return self.dropout(x)
+
+def train_meta_model_maml(evaluation_csv_path, data_frame):
+    """
+    本来的にはMAML等のメタ学習を想定しているようだが、ここでは簡易版:
+    - evaluation_result.csv が存在すれば読み込み
+    - '信頼度' などの簡易特徴から「当たり（ミニ/ボックス/ストレート）」を分類するRFを学習
+    - 無ければ None を返す（呼び出し側で安全に処理される）
+    """
+    import os
+    import pandas as pd
+    from sklearn.ensemble import RandomForestClassifier
+
+    if not os.path.exists(evaluation_csv_path) or os.path.getsize(evaluation_csv_path) == 0:
+        print(f"[META] {evaluation_csv_path} が見つからないためメタモデルは作成しません。")
+        return None
+
+    try:
+        df = pd.read_csv(evaluation_csv_path)
+    except Exception as e:
+        print(f"[META] 読み込み失敗: {e}")
+        return None
+
+    needed = []
+    if "信頼度" in df.columns: needed.append("信頼度")
+    if "期待収益" in df.columns: needed.append("期待収益")
+    if not needed:
+        print("[META] 学習に使える数値特徴が不足しています。")
+        return None
+    if "等級" not in df.columns:
+        print("[META] '等級' 列が無いためメタモデルを作成しません。")
+        return None
+
+    y = df["等級"].isin(["ミニ", "ボックス", "ストレート"]).astype(int).values
+    X = df[needed].fillna(0.0).values
+
+    if len(df) < 10 or y.sum() == 0:
+        print("[META] 学習データが少なすぎるか、全てはずれのためスキップ。")
+        return None
+
+    clf = RandomForestClassifier(n_estimators=200, random_state=42)
+    clf.fit(X, y)
+    print("[META] 簡易メタモデルを学習しました（RandomForest）。")
+
+    class _MetaWrapper:
+        def __init__(self, model):
+            self.model = model
+        def predict(self, feat_array):
+            import numpy as np
+            a = np.array(feat_array, dtype=float)
+            if a.ndim == 1:
+                a = a.reshape(1, -1)
+            try:
+                return self.model.predict(a)
+            except Exception:
+                fallback = np.array([[1.0, 0.0]])
+                return self.model.predict(fallback)
+    return _MetaWrapper(clf)
+
+def parse_number_string(value):
+    """
+    入力が str でも list/ndarray でも安全に [int, int, int] を返す。
+    許容フォーマット:
+      - "1,2,3" / "1 2 3" / "[1, 2, 3]"
+      - [1,2,3] / np.array([1,2,3])
+      - None/NaN → []
+    """
+    import re
     import numpy as np
     import pandas as pd
-    try:
-        recent = historical_df.tail(120) if hasattr(historical_df, 'tail') else historical_df
-        digits = []
-        for row in recent["本数字"]:
-            nums = parse_number_string(row)
-            digits.extend(nums)
-        if not digits:
-            return 0.5
-        from collections import Counter
-        cnt = Counter(digits)
-        maxc = max(cnt.values()) if cnt else 1
-        freq = np.mean([(cnt.get(int(n), 0) / maxc) for n in numbers])
-        if cycle_scores is None:
-            try:
-                cycle_scores = calculate_number_cycle_score(historical_df)
-            except Exception:
-                cycle_scores = {}
-        cyc_vals = [cycle_scores.get(int(n), 100) for n in numbers]
-        cyc = 1.0 - (float(np.mean(cyc_vals)) / 100.0)
-        conf = max(0.0, min(1.0, 0.6*float(freq) + 0.4*float(cyc)))
-        return float(conf)
-    except Exception:
-        return 0.5
-
-
-def calculate_next_draw_date(csv_path="numbers3.csv"):
-    try:
-        df = pd.read_csv(csv_path)
-        df["抽せん日"] = pd.to_datetime(df["抽せん日"], errors='coerce')
-        latest_date = df["抽せん日"].max()
-        next_date = latest_date + timedelta(days=1)
-
-        # 土曜(5)または日曜(6)の場合、次の月曜に調整
-        while next_date.weekday() in [5, 6]:
-            next_date += timedelta(days=1)
-
-        return next_date.strftime("%Y-%m-%d")
-    except Exception as e:
-        print(f"[WARNING] 日付取得エラー: {e}")
-        return "不明"
-       
-def parse_number_string(number_str):
-    """
-    予測番号や当選番号の文字列をリスト化する関数
-    """
-    # === ✅ NaN または None 判定（配列でも安全に処理） ===
-    if number_str is None or (isinstance(number_str, float) and np.isnan(number_str)):
+    if value is None or (isinstance(value, float) and pd.isna(value)):
         return []
-
-    if isinstance(number_str, list):
-        return number_str  # すでにリストならそのまま返す
-
-    number_str = str(number_str).strip("[]").replace("'", "").replace('"', '')
-    numbers = re.split(r'[\s,]+', number_str)
-    return [int(n) for n in numbers if n.isdigit()]
+    # 既に配列系ならそのまま整形
+    if isinstance(value, (list, tuple, np.ndarray)):
+        out = []
+        for x in value:
+            sx = str(x).strip()
+            if sx.isdigit():
+                out.append(int(sx))
+        return out
+    # 文字列などは柔軟にパース
+    s = str(value).strip()
+    if s == "":
+        return []
+    s = s.strip("[](){}")
+    # 数字1桁ずつを拾う（Numbers3前提）
+    tokens = re.findall(r"\d", s)
+    return [int(t) for t in tokens]
 
 def calculate_precision_recall_f1(evaluation_df):
     y_true = []
@@ -1420,7 +1312,7 @@ def ppo_multiagent_predict(historical_data, num_predictions=5):
                     new = random.sample(candidates, 3)
                 else:
                     new = random.sample(range(0, 10), 3)
-                confidence = compute_data_driven_confidence(new, historical_data)
+                confidence = 0.91
 
             elif strategy == "box":
                 # 頻出数字で構成しつつ、前回と同じ構成を避ける
@@ -1430,7 +1322,7 @@ def ppo_multiagent_predict(historical_data, num_predictions=5):
                 if len(new) < 3:
                     new += random.sample([n for n in range(10) if n not in new], 3 - len(new))
                 new = sorted(new[:3])
-                confidence = compute_data_driven_confidence(new, historical_data)
+                confidence = 0.92
 
             else:  # diverse
                 # ランダム構成。ただし前回と完全一致は避ける
@@ -1440,13 +1332,13 @@ def ppo_multiagent_predict(historical_data, num_predictions=5):
                     if set(new) != last_set or trial > 10:
                         break
                     trial += 1
-                confidence = compute_data_driven_confidence(new, historical_data)
+                confidence = 0.905
 
             results.append((new, confidence))
 
     return results
 
-def train_diffusion_model(df, model_path="diffusion_model.pth", epochs=100, device="cpu"):
+def train_diffusion_model(df, model_path="diffusion_model.pth", epochs=300, device="cpu"):
     class DiffusionMLP(nn.Module):
         def __init__(self, input_dim=3, hidden_dim=64):
             super().__init__()
@@ -1542,14 +1434,14 @@ def diffusion_generate_predictions(df, num_predictions=5, model_path="diffusion_
         if all(0 <= n <= 9 for n in candidate) and len(set(candidate)) == 3:
             predictions.append(candidate)
 
-    return [(list(p), compute_data_driven_confidence(list(p), df)) for p in predictions]
+    return [(list(p), 0.91) for p in predictions]
 
 def load_trained_model():
     print("[INFO] 外部モデルは未定義のため、Noneを返します。")
     return None
 
 class CycleAttentionTransformer(nn.Module):
-    def __init__(self, input_dim, embed_dim=64, num_heads=4, num_layers=2):
+    def __init__(self, input_dim, embed_dim=64, num_heads=8, num_layers=2):
         super(CycleAttentionTransformer, self).__init__()
         self.embedding = nn.Linear(input_dim, embed_dim)
         self.pos_encoder = PositionalEncoding(embed_dim)
@@ -1590,7 +1482,7 @@ def train_transformer_with_cycle_attention(df, model_path="transformer_model.pth
     print("[INFO] Transformerモデルの学習を開始します...")
 
     class CycleAttentionTransformer(nn.Module):
-        def __init__(self, input_dim, embed_dim=64, num_heads=4, num_layers=2):
+        def __init__(self, input_dim, embed_dim=64, num_heads=8, num_layers=2):
             super().__init__()
             self.embedding = nn.Linear(input_dim, embed_dim)
             self.pos_encoder = PositionalEncoding(embed_dim)
@@ -1639,7 +1531,7 @@ def train_transformer_with_cycle_attention(df, model_path="transformer_model.pth
 
 def transformer_generate_predictions(df, model_path="transformer_model.pth"):
     class CycleAttentionTransformer(nn.Module):
-        def __init__(self, input_dim=40, embed_dim=64, num_heads=4, num_layers=2):
+        def __init__(self, input_dim=40, embed_dim=64, num_heads=8, num_layers=2):
             super().__init__()
             self.embedding = nn.Linear(input_dim, embed_dim)
             self.pos_encoder = PositionalEncoding(embed_dim)
@@ -1678,7 +1570,7 @@ def transformer_generate_predictions(df, model_path="transformer_model.pth"):
         output = model(input_tensor)
         prediction = [max(0, min(9, int(round(p.item())))) for p in output.squeeze()]
         print(f"[Transformer] 予測結果: {prediction}")
-        return [(prediction, compute_data_driven_confidence(prediction, df))]
+        return [(prediction, 0.95)]
 
 def evaluate_and_summarize_predictions(
     pred_file="Numbers3_predictions.csv",
@@ -1809,8 +1701,8 @@ def evaluate_and_summarize_predictions(
     lines.append(f"最終損益: {'+' if profit >= 0 else '-'}¥{abs(profit):,}")
 
     # 2025-07-01以降の各予測の集計 ===
-    lines.append("\n== 🆕 2025-09-01以降の各予測集計 ==")
-    target_date = datetime(2025, 9, 1).date()
+    lines.append("\n== 🆕 2025-08-01以降の各予測集計 ==")
+    target_date = datetime(2025, 8, 1).date()
 
     for i in range(1, 6):
         subset = eval_df[
@@ -1833,7 +1725,7 @@ def evaluate_and_summarize_predictions(
         cost = total_preds * cost_per_draw
         profit = total_reward - cost
 
-        lines.append(f"\n== 📅 予測{i}（2025-07-01以降） ==")
+        lines.append(f"\n== 📅 予測{i}（2025-08-01以降） ==")
         lines.append(f"ボックス: {box} 件, ストレート: {straight} 件")
         lines.append(f"的中率: {acc:.2f}%")
         lines.append(f"賞金: ¥{total_reward:,}, コスト: ¥{cost:,}, 損益: {'+' if profit >= 0 else '-'}¥{abs(profit):,}")
@@ -1863,7 +1755,7 @@ def evaluate_and_summarize_predictions(
             try:
                 date_str = detail.split(",")[0].replace("☆", "").strip()
                 draw_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                if draw_date >= datetime(2025, 9, 1).date():
+                if draw_date >= datetime(2025, 8, 1).date():
                     prefix = "☆"
                     lines.append(prefix + detail)
             except Exception:
@@ -1894,17 +1786,29 @@ def evaluate_and_summarize_predictions(
             print("[INFO] 高一致予測は存在しません（保存スキップ）")
     except Exception as e:
         print(f"[WARNING] self_predictions.csv 保存エラー: {e}")
-        
 def add_random_diversity(predictions):
-
+    # 乱択を軽く混ぜて、候補を1つ追加するヘルパー。
     pool = list(range(10))
-    shuffle(pool)
+    random.shuffle(pool)
     base = pool[:3]
+    # 既存の先頭候補の先頭数字を混ぜて少しだけ相関を残す
     fallback = predictions[0][0] if predictions else [0]
-    if fallback:
-        base.append(fallback[0])
-    base = sorted(set(base))[:4]
-    predictions.append((base, 0.5))
+    if isinstance(fallback, (list, tuple)) and fallback:
+        base.append(int(fallback[0]) % 10)
+    # 重複を除去して最大3桁に揃える
+    dedup = []
+    for x in base:
+        if x not in dedup:
+            dedup.append(x)
+        if len(dedup) == 3:
+            break
+    if len(dedup) < 3:
+        for x in pool:
+            if x not in dedup:
+                dedup.append(x)
+            if len(dedup) == 3:
+                break
+    predictions.append((dedup, 0.5, "diversity"))
     return predictions
 
 def retrain_meta_classifier(evaluation_df):
@@ -2041,7 +1945,7 @@ def main_with_improved_predictions():
     all_groups = {
         "PPO": [(p[0], p[1], "PPO") for p in ppo_multiagent_predict(historical_data)],
         "Diffusion": [(p[0], p[1], "Diffusion") for p in diffusion_generate_predictions(historical_data, 5)],
-        "GPT": [(p[0], p[1], "GPT") for p in gpt_generate_predictions_with_memory_3(
+        "GPT": [(p[0], p[1], "GPT") for p in gpt_generate_predictions_with_memory(
             decoder, encoder, historical_data["本数字"].tolist(), num_samples=5)],
     }
 
@@ -2051,7 +1955,7 @@ def main_with_improved_predictions():
 
     # === 🔁 自己予測（高一致ストレート・ボックス）を予測候補に追加 ===
     true_data = historical_data["本数字"].tolist()
-    self_preds = load_self_predictions(min_match_threshold=2, true_data=true_data, return_with_freq=False)
+    self_preds = load_self_predictions(min_match_threshold=2, true_data=true_data)
     if self_preds:
         print(f"[INFO] 自己予測 {len(self_preds)} 件を候補に追加")
         all_predictions.extend([(p, 0.95, "Self") for p in self_preds])
@@ -2216,7 +2120,7 @@ def randomly_shuffle_predictions(predictions):
         else:
             numbers, conf = pred
             origin = "Unknown"
-        shuffle(numbers)
+        random.shuffle(numbers)
         shuffled.append((numbers, conf, origin))
     return shuffled
 
@@ -2571,7 +2475,7 @@ def weekly_retrain_all_models():
         return
 
     # 各モデル再学習
-    train_diffusion_model(df, model_path="diffusion_model.pth", epochs=100)
+    train_diffusion_model(df, model_path="diffusion_model.pth", epochs=300)
     train_gpt3numbers_model_with_memory(
         save_path="gpt3numbers.pth",
         encoder_path="memory_encoder_3.pth",
@@ -2656,8 +2560,56 @@ def generate_progress_dashboard_text(eval_file="evaluation_result.csv", output_t
     except Exception as e:
         print(f"[ERROR] ダッシュボード出力に失敗しました: {e}")
 
+def enforce_grade_structure(predictions):
+    """
+    予測候補の正規化・重複排除・信頼度クランプを行う軽量バリデータ。
+    入力: [(numbers, conf)] or [(numbers, conf, origin)]
+    出力: [(numbers(list[int]), conf(float), origin(str))]
+    """
+    seen = set()
+    normalized = []
+    for pred in predictions or []:
+        if len(pred) == 3:
+            numbers, conf, origin = pred
+        elif len(pred) == 2:
+            numbers, conf = pred
+            origin = "Unknown"
+        else:
+            continue
+
+        if not isinstance(numbers, (list, tuple)):
+            continue
+        nums = []
+        for x in list(numbers)[:3]:
+            try:
+                xi = int(x)
+                if 0 <= xi <= 9:
+                    nums.append(xi)
+            except Exception:
+                pass
+        if len(nums) != 3:
+            continue
+
+        key = tuple(nums)
+        if key in seen:
+            continue
+        seen.add(key)
+
+        try:
+            conf = float(conf)
+        except Exception:
+            conf = 0.5
+        conf = 0.0 if conf < 0 else (1.0 if conf > 1 else conf)
+
+        normalized.append((nums, conf, origin))
+
+    return normalized
+
 def bulk_predict_all_past_draws():
-    
+    import torch
+    import pandas as pd
+    import os
+
     try:
         df = pd.read_csv("numbers3.csv")
         df["本数字"] = df["本数字"].apply(parse_number_string)
@@ -2680,19 +2632,30 @@ def bulk_predict_all_past_draws():
     gpt_model_path = "gpt3numbers.pth"
     encoder_path = "memory_encoder_3.pth"
 
-    if not os.path.exists(gpt_model_path) or not os.path.exists(encoder_path):
-        print("[INFO] GPT3Numbers モデルが存在しないため再学習を開始します")
-        decoder, encoder = train_gpt3numbers_model_with_memory(
-            save_path=gpt_model_path, encoder_path=encoder_path)
-    else:
-        decoder = GPT3Numbers().to(device)
-        encoder = MemoryEncoder().to(device)
+    decoder = GPT3Numbers(embed_dim=64).to(device)
+    encoder = MemoryEncoder(embed_dim=64).to(device)
+
+    try:
         decoder.load_state_dict(torch.load(gpt_model_path, map_location=device))
         encoder.load_state_dict(torch.load(encoder_path, map_location=device))
         print("[INFO] GPT3Numbers モデルを読み込みました")
+    except RuntimeError as e:
+        print(f"[WARNING] モデル構造が一致しません。再学習を行い、上書き保存します: {e}")
+        decoder, encoder = train_gpt3numbers_model_with_memory(
+            save_path=gpt_model_path,
+            encoder_path=encoder_path,
+            epochs=50
+        )
+        print("[INFO] モデル再トレーニングが完了しました。GitHubへpushします。")
+        git_commit_and_push(gpt_model_path, "Auto update GPT3Numbers model [skip ci]")
+        git_commit_and_push(encoder_path, "Auto update MemoryEncoder model [skip ci]")
 
     decoder.eval()
     encoder.eval()
+
+    # 以下は元の処理（短縮）
+    # ... この後は既存の bulk_predict_all_past_draws 処理を続けてください ...
+
 
     meta_clf = None
     try:
@@ -2724,7 +2687,7 @@ def bulk_predict_all_past_draws():
         all_groups = {
             "PPO": [(p[0], p[1], "PPO") for p in ppo_multiagent_predict(sub_data)],
             "Diffusion": [(p[0], p[1], "Diffusion") for p in diffusion_generate_predictions(sub_data, 5)],
-            "GPT": [(p[0], p[1], "GPT") for p in gpt_generate_predictions_with_memory_3(
+            "GPT": [(p[0], p[1], "GPT") for p in gpt_generate_predictions_with_memory(
                 decoder, encoder, sub_data["本数字"].tolist(), num_samples=5)]
         }
 
@@ -2734,7 +2697,7 @@ def bulk_predict_all_past_draws():
 
         # === ✅ 自己予測（高一致）を追加 ===
         true_data = sub_data["本数字"].tolist()
-        self_preds = load_self_predictions(min_match_threshold=2, true_data=true_data, return_with_freq=False)
+        self_preds = load_self_predictions(min_match_threshold=2, true_data=true_data)
         if self_preds:
             for pred in self_preds[:5]:
                 all_candidates.append((list(pred), 0.95, "Self"))
@@ -2828,7 +2791,7 @@ if __name__ == "__main__":
     # Diffusionモデルがなければ学習
     if not os.path.exists("diffusion_model.pth"):
         print("[INFO] Diffusionモデルが見つかりません。学習を開始します...")
-        train_diffusion_model(df, model_path="diffusion_model.pth", epochs=100)
+        train_diffusion_model(df, model_path="diffusion_model.pth", epochs=300)
 
     # Transformerモデルがなければ学習
     if not os.path.exists("transformer_model.pth"):
@@ -2838,41 +2801,65 @@ if __name__ == "__main__":
     # 🔁 一括予測を実行
     bulk_predict_all_past_draws()
     # main_with_improved_predictions()
-    
 
 
-# ==== Injected helpers to replace dummies with real data ====
+from datetime import datetime, timedelta
 
-def safe_load_evaluation_df(path="evaluation_result.csv"):
-    import pandas as pd
-    try:
-        df = pd.read_csv(path)
-        if "抽せん日" in df.columns:
-            df["抽せん日"] = pd.to_datetime(df["抽せん日"], errors='coerce')
-        return df
-    except Exception:
-        return pd.DataFrame()
+def calculate_next_draw_date(base_date: datetime | None = None) -> str:
+    """
+    次回抽せん予定日（簡易：次の平日）を "YYYY-MM-DD" で返す。
+    祝日考慮はしない。必要なら後で拡張可能。
+    """
+    today = (base_date.date() if isinstance(base_date, datetime) else datetime.now().date())
+    d = today
+    # 次の平日
+    while True:
+        d += timedelta(days=1)
+        if d.weekday() < 5:  # 0=Mon,...,4=Fri
+            return d.strftime("%Y-%m-%d")
 
-def get_recent_straight_like_candidates(eval_df, lookback_days=90, max_items=10):
-    import pandas as pd
-    if eval_df is None or eval_df.empty:
-        return []
-    ref_date = eval_df["抽せん日"].max()
-    if pd.isna(ref_date):
-        return []
-    mask = (eval_df["抽せん日"] >= (ref_date - pd.Timedelta(days=lookback_days)))
-    if "等級" in eval_df.columns:
-        mask &= eval_df["等級"].isin(["ストレート", "ボックス"])
-    recent = eval_df[mask]
-    out = []
-    for _, row in recent.iterrows():
-        p = row.get("予測1")
-        try:
-            nums = parse_number_string(p)
-            if len(nums) == 3 and len(set(nums)) == 3:
-                out.append(nums)
-        except Exception:
+
+def enforce_grade_structure(predictions):
+    """
+    予測候補の正規化・重複排除・信頼度クランプを行う軽量バリデータ。
+    入力: [(numbers, conf)] or [(numbers, conf, origin)]
+    出力: [(numbers(list[int]), conf(float), origin(str))]
+    """
+    seen = set()
+    normalized = []
+    for pred in predictions or []:
+        if len(pred) == 3:
+            numbers, conf, origin = pred
+        elif len(pred) == 2:
+            numbers, conf = pred
+            origin = "Unknown"
+        else:
             continue
-        if len(out) >= max_items:
-            break
-    return out
+
+        if not isinstance(numbers, (list, tuple)):
+            continue
+        nums = []
+        for x in list(numbers)[:3]:
+            try:
+                xi = int(x)
+                if 0 <= xi <= 9:
+                    nums.append(xi)
+            except Exception:
+                pass
+        if len(nums) != 3:
+            continue
+
+        key = tuple(nums)
+        if key in seen:
+            continue
+        seen.add(key)
+
+        try:
+            conf = float(conf)
+        except Exception:
+            conf = 0.5
+        conf = 0.0 if conf < 0 else (1.0 if conf > 1 else conf)
+
+        normalized.append((nums, conf, origin))
+
+    return normalized
