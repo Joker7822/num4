@@ -1053,6 +1053,44 @@ async def get_latest_drawing_dates():
     dates = await fetch_drawing_dates()
     return dates
 
+def calculate_next_draw_date():
+    """
+    最新のNumbers3抽せん日（過去の直近）を YYYY-MM-DD 文字列で返す。
+    公式サイトから取得できない場合は None を返す。
+    """
+    import asyncio
+    from datetime import datetime
+
+    try:
+        dates = asyncio.run(get_latest_drawing_dates())
+        if not dates:
+            print("[WARNING] 抽せん日が取得できませんでした（空リスト）")
+            return None
+
+        # 文字列を日付に変換して最大（日付として最新）を返す
+        parsed = []
+        for d in dates:
+            s = str(d).strip()
+            # 可能な限り YYYY-MM-DD に正規化
+            s = s.replace("/", "-")
+            try:
+                dt = datetime.strptime(s, "%Y-%m-%d").date()
+                parsed.append(dt)
+            except Exception:
+                # 解析できない形式はスキップ
+                continue
+
+        if not parsed:
+            print("[WARNING] 抽せん日の解析に失敗しました（全て不正形式）")
+            return None
+
+        latest = max(parsed)
+        return latest.strftime("%Y-%m-%d")
+
+    except Exception as e:
+        print(f"[ERROR] calculate_next_draw_date で例外: {e}")
+        return None
+
 def calculate_number_cycle_score(historical_numbers):
     """
     過去の出現履歴から 0〜9 各数字の「平均サイクル長」（再出現までの間隔）を計算して返す。
