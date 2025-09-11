@@ -2719,14 +2719,13 @@ def bulk_predict_all_past_draws():
             actual_numbers = set()
 
         # Normalize latest_date and guard against None/NaT before using .date()
-latest_ts = pd.to_datetime(latest_date, errors='coerce')
-if pd.isna(latest_ts):
-    print(f"[WARNING] latest_date is None/NaT; skipping this entry.")
-    continue
-latest_day = latest_ts.date()
-if latest_day in predicted_dates:
-    continue
-
+        latest_ts = pd.to_datetime(latest_date, errors='coerce')
+        if pd.isna(latest_ts):
+            print(f"[WARNING] latest_date is None/NaT; skipping this entry.")
+            continue
+        latest_day = latest_ts.date()
+        if latest_day in predicted_dates:
+            continue
         # === 各モデルから予測を収集 ===
         all_groups = {
             "PPO": [(p[0], p[1], "PPO") for p in ppo_multiagent_predict(sub_data)],
