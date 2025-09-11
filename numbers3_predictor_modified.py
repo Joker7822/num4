@@ -2718,8 +2718,14 @@ def bulk_predict_all_past_draws():
                 continue
             actual_numbers = set()
 
-        if latest_date.date() in predicted_dates:
-            continue
+        # Normalize latest_date and guard against None/NaT before using .date()
+latest_ts = pd.to_datetime(latest_date, errors='coerce')
+if pd.isna(latest_ts):
+    print(f"[WARNING] latest_date is None/NaT; skipping this entry.")
+    continue
+latest_day = latest_ts.date()
+if latest_day in predicted_dates:
+    continue
 
         # === 各モデルから予測を収集 ===
         all_groups = {
