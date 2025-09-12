@@ -1,12 +1,16 @@
-name: Auto Scrape Numbers3_v4
+name: Auto Numbers3 with Optuna
 
 on:
   schedule:
-    - cron: '0 11 * * 1-5'  # JST 20:00（UTC 11:00）、月〜金
+    - cron: '0 11 * * 1-5'  # JST 20:00（UTC 11:00）
   workflow_dispatch:
 
+concurrency:
+  group: numbers3-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  run-scraper:
+  run-numbers3:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,53 +20,31 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
+          cache: 'pip'
 
-      - name: Install dependencies and headless Chrome
+      - name: Install dependencies
+        shell: bash
         run: |
-          sudo apt update
-          sudo apt install -y wget unzip xvfb \
-            libglib2.0-0 libnss3 libxi6 libxcomposite1 libxss1 \
-            libatk-bridge2.0-0 libgtk-3-0 libasound2t64
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements_heavy.txt ]; then pip install -r requirements_heavy.txt; fi
 
-          # Install Chrome
-          wget https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chrome-linux64.zip
-          unzip chrome-linux64.zip
-          sudo mv chrome-linux64 /opt/chrome
-          sudo ln -sf /opt/chrome/chrome /usr/bin/google-chrome
-
-          # Install ChromeDriver
-          wget https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chromedriver-linux64.zip
-          unzip chromedriver-linux64.zip
-          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
-          sudo chmod +x /usr/local/bin/chromedriver
-
-      - name: Downgrade pip to stable version
-        run: python -m pip install pip==23.3.1
-
-      - name: Install core dependencies
-        run: pip install -r requirements_core.txt
-
-      - name: Install heavy dependencies
-        run: pip install -r requirements_heavy.txt
-
+      # ===== スクレイピング & numbers3.csv 更新 =====
       - name: Run scraping script
         run: xvfb-run -a python scrapingnumbers3.py
 
-      - name: Commit and push numbers3.csv if changed
+      - name: Commit numbers3.csv if changed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git fetch origin
-          git stash --include-untracked
-          git checkout ${{ github.ref_name }}
-          git pull --rebase origin ${{ github.ref_name }}
-          git stash pop || true
-
-          git add numbers3.csv
+          git reset --hard origin/${{ github.ref_name }}
+          git add numbers3.csv || true
           if git diff --cached --quiet; then
             echo "No changes to numbers3.csv"
           else
@@ -70,26 +52,116 @@ jobs:
             git push origin HEAD:${{ github.ref_name }}
           fi
 
-      - name: Run predictor script
-        run: xvfb-run -a python numbers3_predictor_modified.py
+      # ===== Optuna: Numbers3_predictions.csv × numbers3.csv で探索 =====
+      - name: Run Optuna search (Numbers3)
+        env:
+          NUMBERS3_CSV: ${{ env.NUMBERS3_CSV }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p optuna_results
+          CSV_PATH="${NUMBERS3_CSV:-numbers3.csv}"
+          xvfb-run -a python optuna_search_resumable.py \
+            --backfill Numbers3_predictions.csv \
+            --csv "${CSV_PATH}" \
+            --n_trials 80 \
+            --out optuna_results/best_params.json \
+            --storage sqlite:///optuna_results/optuna_study.db \
+            --study_name numbers3_optuna
 
-      - name: Commit and push remaining prediction results
+      - name: Commit Optuna results
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git fetch origin
-          git stash --include-untracked
-          git checkout ${{ github.ref_name }}
-          git pull --rebase origin ${{ github.ref_name }}
-          git stash pop || true
-
-          git add evaluation_result.csv evaluation_summary.txt self_predictions.csv
+          git reset --hard origin/${{ github.ref_name }}
+          git add optuna_results/best_params.json || true
           if git diff --cached --quiet; then
-            echo "No changes to evaluation-related files"
+            echo "No Optuna changes."
           else
-            git commit -m "Auto update evaluation and self prediction files [skip ci]"
+            git commit -m "Auto update (${GITHUB_REF_NAME}): optuna results [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
+      # ===== （任意）diversity.jsonへ反映：他の処理で使う場合のみ =====
+      - name: Apply best_params to diversity.json
+        id: apply-best
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          out_dir = pathlib.Path("optuna_results")
+          out_dir.mkdir(exist_ok=True, parents=True)
+          best_p = out_dir / "best_params.json"
+          div_p  = out_dir / "diversity.json"
+
+          best = {}
+          if best_p.exists():
+              best = json.loads(best_p.read_text(encoding="utf-8"))
+
+          div = {}
+          if div_p.exists():
+              try:
+                  div = json.loads(div_p.read_text(encoding="utf-8"))
+              except Exception:
+                  div = {}
+
+          # Numbers3 の既定値（best_params が無い場合のフォールバック）
+          div.setdefault("max_sim", 0.6)
+          for k in ("max_sim","lambda_div","temperature"):
+              if k in best:
+                  try:
+                      div[k] = float(best[k])
+                  except Exception:
+                      div[k] = best[k]
+
+          topk = int(best.get("topk", os.environ.get("NUMBERS3_TOPK", "5")))
+          div_p.write_text(json.dumps(div, ensure_ascii=False, indent=2), encoding="utf-8")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as g:
+              g.write(f"topk={topk}\n")
+          PY
+
+      - name: Commit diversity.json (applied best_params)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git fetch origin
+          git reset --hard origin/${{ github.ref_name }}
+          git add optuna_results/diversity.json || true
+          if git diff --cached --quiet; then
+            echo "No diversity changes."
+          else
+            git commit -m "Auto update (${GITHUB_REF_NAME}): apply best_params to diversity.json [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
+      # ===== 予測実行（numbers3_predictor.py が best_params.json を自動適用）=====
+      - name: Run Numbers3 predictor
+        run: xvfb-run -a python numbers3_predictor.py
+
+      - name: Commit Numbers3 predictions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git fetch origin
+          git reset --hard origin/${{ github.ref_name }}
+          git add Numbers3_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
+          if git diff --cached --quiet; then
+            echo "No Numbers3 prediction changes."
+          else
+            git commit -m "Auto update (${GITHUB_REF_NAME}): Numbers3 predictions [skip ci]"
             git push origin HEAD:${{ github.ref_name }}
           fi
