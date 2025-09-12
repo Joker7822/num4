@@ -17,23 +17,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies and headless Chrome
         run: |
-          sudo apt update
-          sudo apt install -y wget unzip xvfb \
+          sudo apt-get update
+          sudo apt-get install -y wget unzip xvfb \
             libglib2.0-0 libnss3 libxi6 libxcomposite1 libxss1 \
-            libatk-bridge2.0-0 libgtk-3-0 libasound2t64
+            libatk-bridge2.0-0 libgtk-3-0 libasound2t64 || sudo apt-get install -y libasound2
 
           # Install Chrome
-          wget https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chrome-linux64.zip
-          unzip chrome-linux64.zip
+          wget -q https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chrome-linux64.zip
+          unzip -q chrome-linux64.zip
           sudo mv chrome-linux64 /opt/chrome
           sudo ln -sf /opt/chrome/chrome /usr/bin/google-chrome
 
           # Install ChromeDriver
-          wget https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chromedriver-linux64.zip
-          unzip chromedriver-linux64.zip
+          wget -q https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chromedriver-linux64.zip
+          unzip -q chromedriver-linux64.zip
           sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
           sudo chmod +x /usr/local/bin/chromedriver
 
@@ -46,6 +47,31 @@ jobs:
       - name: Install heavy dependencies
         run: pip install -r requirements_heavy.txt
 
+      # --- ここで NBSP/TAB/CRLF を除去して IndentationError を防止 ---
+      - name: Sanitize source files (remove NBSP/tabs/CRLF)
+        shell: bash
+        run: |
+          python - <<'PY'
+          import sys, pathlib, py_compile
+          files = ["optuna_search_resumable.py", "numbers3_predictor.py"]
+          for p in files:
+              path = pathlib.Path(p)
+              if not path.exists():
+                  continue
+              s = path.read_text(encoding="utf-8", errors="ignore")
+              s2 = (s.replace("\u00a0", " ")
+                      .replace("\t", "    ")
+                      .replace("\r\n", "\n")
+                      .replace("\r", "\n"))
+              if s2 != s:
+                  path.write_text(s2, encoding="utf-8")
+                  print(f"[fix] normalized whitespace: {p}")
+              try:
+                  py_compile.compile(str(path), doraise=True)
+                  print(f"[ok] compiled: {p}")
+              except Exception as e:
+                  print(f"[warn] compile failed for {p}: {e}", file=sys.stderr)
+          PY
 
       # ===== スクレイピング & numbers3.csv 更新 =====
       - name: Run scraping script
