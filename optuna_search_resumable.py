@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -256,6 +255,57 @@ def main():
         topk    = trial.suggest_int("topk", args.topk_min, args.topk_max)
         max_sim = trial.suggest_float("max_sim", args.max_sim_min, args.max_sim_max)
         value   = score_trial(bf_df, truth_df, topk=topk, max_sim=max_sim)
+        trial.report(value, step=1)
+        if trial.should_prune():
+            raise optuna.TrialPruned()
+        return value
+
+    def checkpoint_cb(study: optuna.Study, trial: optuna.trial.FrozenTrial):
+        """Periodically copy sqlite DB as a checkpoint file."""
+        if not args.checkpoint_interval:
+            return
+        if trial.number % args.checkpoint_interval != 0:
+            return
+        if args.storage.startswith("sqlite:///"):
+            db_path = args.storage.replace("sqlite:///", "", 1)
+            src = Path(db_path)
+            if src.exists():
+                dst = src.with_name(f"{src.stem}_ckpt_{trial.number}{src.suffix}")
+                try:
+                    shutil.copy2(src, dst)
+                    print(f"[CKPT] Saved checkpoint DB: {dst}", flush=True)
+                except Exception as e:
+                    print(f"[CKPT] Failed to save checkpoint: {e}", flush=True)
+
+    study.optimize(objective, n_trials=args.n_trials, callbacks=[checkpoint_cb], gc_after_trial=True)
+
+    # Best result
+    best = study.best_trial
+    result = {
+        "topk": int(best.params["topk"]),
+        "max_sim": float(best.params["max_sim"]),
+        # reasonable defaults that can be tuned later if needed
+        "lambda_div": 0.6,
+        "temperature": 0.35,
+        "best_value": float(best.value),
+        "study_name": args.study_name,
+        "storage": args.storage
+    }
+
+    # Overwrite if exists; create if not
+    try:
+        out_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"[BEST] saved to {out_path}", flush=True)
+    except Exception as e:
+        print(f"[ERROR] failed to write {out_path}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+       value   = score_trial(bf_df, truth_df, topk=topk, max_sim=max_sim)
         trial.report(value, step=1)
         if trial.should_prune():
             raise optuna.TrialPruned()
