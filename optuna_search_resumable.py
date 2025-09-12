@@ -48,7 +48,8 @@ def _enforce_final_diversity(seq_of_cands: List[List[int]], max_sim: float) -> L
         ok = True
         for s in out:
             if jacc(cand, s) > max_sim:
-                ok = False; break
+                ok = False
+                break
         if ok:
             out.append(cand)
     return out
@@ -70,6 +71,7 @@ def _parse_pred_cell_loto7(cell: str) -> List[List[int]]:
             cand = sorted(nums[:7])
             out.append(cand)
     return out
+
 
 def _parse_numbers3_row_to_cands(row: pd.Series) -> List[List[int]]:
     """Numbers3_predictions.csv 1行から '予測1..5' を cand_list 化。"""
@@ -109,20 +111,20 @@ def _extract_loto7_winners(row: pd.Series) -> Optional[List[int]]:
     seen, out = set(), []
     for v in vals:
         if v not in seen:
-            seen.add(v); out.append(v)
+            seen.add(v)
+            out.append(v)
         if len(out) >= 7:
             return sorted(out[:7])
     return None
 
+
 def _extract_numbers3_winners(row: pd.Series) -> Optional[List[int]]:
     """numbers3.csv の '本数字' または類似列から 3桁 [0..9] 抽出。"""
-    # try '本数字'
     if "本数字" in row.index:
         nums = [int(x) for x in re.findall(r"\d", str(row["本数字"]))]
         nums = [n for n in nums if 0 <= n <= 9]
         if len(nums) >= 3:
             return nums[:3]
-    # fallback: scan row
     nums = [int(x) for x in re.findall(r"\d", " ".join(map(str, row.values)))]
     nums = [n for n in nums if 0 <= n <= 9]
     return nums[:3] if len(nums) >= 3 else None
@@ -159,7 +161,8 @@ def load_truth(csv_path: str, mode_hint: Optional[str] = None) -> pd.DataFrame:
     if "抽せん日" not in df.columns:
         for alt in ("抽選日", "date", "Date", "draw_date"):
             if alt in df.columns:
-                df = df.rename(columns={alt: "抽せん日"}); break
+                df = df.rename(columns={alt: "抽せん日"})
+                break
     if "抽せん日" not in df.columns:
         raise RuntimeError("正解CSVに '抽せん日' 列が見つかりません。")
     df["抽せん日"] = pd.to_datetime(df["抽せん日"], errors="coerce")
@@ -171,12 +174,8 @@ def load_truth(csv_path: str, mode_hint: Optional[str] = None) -> pd.DataFrame:
     elif mode_hint == "loto7":
         df["winners"] = df.apply(_extract_loto7_winners, axis=1)
     else:
-        # try numbers3 first if '本数字' looks like 3 digits
         sample = df.head(1)
-        if not sample.empty:
-            sample_nums = _extract_numbers3_winners(sample.iloc[0])
-        else:
-            sample_nums = None
+        sample_nums = _extract_numbers3_winners(sample.iloc[0]) if not sample.empty else None
         if sample_nums and len(sample_nums) == 3:
             df["winners"] = df.apply(_extract_numbers3_winners, axis=1)
         else:
@@ -192,8 +191,6 @@ def score_trial(bf_df: pd.DataFrame, truth_df: pd.DataFrame, topk: int, max_sim:
     if merged.empty:
         return 0.0
 
-    is_numbers3 = (bf_df.get("mode") == "numbers3").any()
-
     def best_hits_for_row(row) -> int:
         cands = _enforce_final_diversity(row["cand_list"], max_sim=max_sim)
         cands = cands[: max(1, int(topk))]
@@ -207,7 +204,7 @@ def score_trial(bf_df: pd.DataFrame, truth_df: pd.DataFrame, topk: int, max_sim:
 
     hits = merged.apply(best_hits_for_row, axis=1)
     # objective: average(best_hits) + tiny regularization to avoid too small topk
-    return float(hits.mean() + 1e-6 * (topk / (5.0 if is_numbers3 else 40.0)))
+    return float(hits.mean() + 1e-6 * (topk / 5.0))
 
 
 # ------------------------------- CLI -----------------------------------------
@@ -223,7 +220,7 @@ def parse_args():
     ap.add_argument("--checkpoint_interval", type=int, default=10)
     # search spaces
     ap.add_argument("--topk_min", type=int, default=3)
-    ap.add_argument("--topk_max", type=int, default=15)  # Numbers3 default
+    ap.add_argument("--topk_max", type=int, default=15)
     ap.add_argument("--max_sim_min", type=float, default=0.0)
     ap.add_argument("--max_sim_max", type=float, default=0.9)
     return ap.parse_args()
@@ -243,18 +240,69 @@ def main():
 
     # Optuna (resume-friendly)
     sampler = optuna.samplers.TPESampler(seed=args.seed)
-    pruner  = optuna.pruners.MedianPruner(n_warmup_steps=10)
+    pruner = optuna.pruners.MedianPruner(n_warmup_steps=10)
 
-    study = optuna.create_study(direction="maximize",
-                                study_name=args.study_name,
-                                storage=args.storage,
-                                load_if_exists=True,
-                                sampler=sampler)
+    study = optuna.create_study(
+        direction="maximize",
+        study_name=args.study_name,
+        storage=args.storage,
+        load_if_exists=True,
+        sampler=sampler
+    )
 
     def objective(trial: optuna.Trial):
-        topk    = trial.suggest_int("topk", args.topk_min, args.topk_max)
+        topk = trial.suggest_int("topk", args.topk_min, args.topk_max)
         max_sim = trial.suggest_float("max_sim", args.max_sim_min, args.max_sim_max)
-        value   = score_trial(bf_df, truth_df, topk=topk, max_sim=max_sim)
+        value = score_trial(bf_df, truth_df, topk=topk, max_sim=max_sim)
+        trial.report(value, step=1)
+        if trial.should_prune():
+            raise optuna.TrialPruned()
+        return value
+
+    def checkpoint_cb(study: optuna.Study, trial: optuna.trial.FrozenTrial):
+        """Periodically copy sqlite DB as a checkpoint file."""
+        if not args.checkpoint_interval:
+            return
+        if trial.number % args.checkpoint_interval != 0:
+            return
+        if args.storage.startswith("sqlite:///"):
+            db_path = args.storage.replace("sqlite:///", "", 1)
+            src = Path(db_path)
+            if src.exists():
+                dst = src.with_name(f"{src.stem}_ckpt_{trial.number}{src.suffix}")
+                try:
+                    shutil.copy2(src, dst)
+                    print(f"[CKPT] Saved checkpoint DB: {dst}", flush=True)
+                except Exception as e:
+                    print(f"[CKPT] Failed to save checkpoint: {e}", flush=True)
+
+    study.optimize(objective, n_trials=args.n_trials, callbacks=[checkpoint_cb], gc_after_trial=True)
+
+    # Best result
+    best = study.best_trial
+    result = {
+        "topk": int(best.params["topk"]),
+        "max_sim": float(best.params["max_sim"]),
+        "lambda_div": 0.6,
+        "temperature": 0.35,
+        "best_value": float(best.value),
+        "study_name": args.study_name,
+        "storage": args.storage
+    }
+
+    try:
+        out_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"[BEST] saved to {out_path}", flush=True)
+    except Exception as e:
+        print(f"[ERROR] failed to write {out_path}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+      value   = score_trial(bf_df, truth_df, topk=topk, max_sim=max_sim)
         trial.report(value, step=1)
         if trial.should_prune():
             raise optuna.TrialPruned()
