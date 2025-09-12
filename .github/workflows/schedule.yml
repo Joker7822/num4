@@ -5,12 +5,8 @@ on:
     - cron: '0 11 * * 1-5'  # JST 20:00（UTC 11:00）、月〜金
   workflow_dispatch:
 
-concurrency:
-  group: numbers3-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  run-numbers3:
+  run-scraper:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,15 +16,36 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: '3.10'
 
-      - name: Install dependencies
-        shell: bash
+      - name: Install dependencies and headless Chrome
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f requirements_heavy.txt ]; then pip install -r requirements_heavy.txt; fi
+          sudo apt update
+          sudo apt install -y wget unzip xvfb \
+            libglib2.0-0 libnss3 libxi6 libxcomposite1 libxss1 \
+            libatk-bridge2.0-0 libgtk-3-0 libasound2t64
+
+          # Install Chrome
+          wget https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chrome-linux64.zip
+          unzip chrome-linux64.zip
+          sudo mv chrome-linux64 /opt/chrome
+          sudo ln -sf /opt/chrome/chrome /usr/bin/google-chrome
+
+          # Install ChromeDriver
+          wget https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/linux64/chromedriver-linux64.zip
+          unzip chromedriver-linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
+
+      - name: Downgrade pip to stable version
+        run: python -m pip install pip==23.3.1
+
+      - name: Install core dependencies
+        run: pip install -r requirements_core.txt
+
+      - name: Install heavy dependencies
+        run: pip install -r requirements_heavy.txt
+
 
       # ===== スクレイピング & numbers3.csv 更新 =====
       - name: Run scraping script
