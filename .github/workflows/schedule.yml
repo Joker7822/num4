@@ -5,8 +5,9 @@ on:
     - cron: '0 11 * * 1-5'  # JST 20:00（UTC 11:00）、月〜金
   workflow_dispatch:
 
+# GITHUB_TOKENでpushできるように必須
 permissions:
-  contents: write  # GITHUB_TOKEN で push 可能に
+  contents: write
 
 jobs:
   run-scraper:
@@ -16,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # rebase/pushのため履歴を取得
+          fetch-depth: 0  # rebase/pull 用に履歴が必要
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,7 +26,9 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies and headless Chrome
+        shell: bash
         run: |
+          set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y wget unzip xvfb \
             libglib2.0-0 libnss3 libxi6 libxcomposite1 libxss1 \
@@ -107,12 +110,13 @@ jobs:
       # ===== Optuna: Numbers3_predictions.csv × numbers3.csv で探索 =====
       - name: Run Optuna search (Numbers3)
         env:
-          NUMBERS3_CSV: ${{ env.NUMBERS3_CSV }}
+          NUMBERS3_CSV: ${{ env.NUMBERS3_CSV }}  # 任意：外部からCSVパスを渡す場合
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p optuna_results
           CSV_PATH="${NUMBERS3_CSV:-numbers3.csv}"
+
           xvfb-run -a python optuna_search_resumable.py \
             --backfill Numbers3_predictions.csv \
             --csv "${CSV_PATH}" \
@@ -223,7 +227,7 @@ jobs:
           git fetch origin
           git pull --rebase origin "${{ github.ref_name }}"
 
-          # 必要な生成物のみをステージング
+          # 必要な生成物のみステージ
           git add Numbers3_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
 
           if git diff --cached --quiet; then
