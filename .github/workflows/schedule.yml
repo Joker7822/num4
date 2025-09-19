@@ -86,22 +86,40 @@ jobs:
       - name: Commit and push numbers3.csv if changed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          git fetch origin
-          git stash --include-untracked
-          git checkout ${{ github.ref_name }}
-          git pull --rebase origin ${{ github.ref_name }}
-          git stash pop || true
+          set -euo pipefail
+          safe_git_pull_rebase() {
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
 
-          git add numbers3.csv
+            # 未ステージ/未追跡の変更がある場合のみ stash
+            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "ci-temp-$(date +%s)"
+              STASHED=1
+            else
+              STASHED=0
+            fi
+
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+
+            if [ "$STASHED" = "1" ]; then
+              git stash pop || true
+            fi
+          }
+
+          safe_git_pull_rebase
+
+          git add numbers3.csv || true
           if git diff --cached --quiet; then
             echo "No changes to numbers3.csv"
           else
             git commit -m "Auto update numbers3.csv [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
       # ===== Optuna: Numbers3_predictions × numbers3.csv で探索 =====
@@ -262,6 +280,50 @@ jobs:
 
             git add Numbers3_predictions.csv || true
             if git diff --cached --quiet; then
+              echo "No changes to Numbers3_predictions.csv"
+            else
+              git commit -m "Hourly update Numbers3_predictions.csv [skip ci]"
+              git push origin HEAD:"${GITHUB_REF_NAME}"
+            fi
+
+            if [ $i -lt 3 ]; then
+              echo "Sleeping 1 hour before next push..."
+              sleep 3600
+            fi
+          done
+
+      - name: Commit and push remaining prediction results
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          safe_git_pull_rebase() {
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
+            else
+              STASHED=0
+            fi
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
+          }
+
+          safe_git_pull_rebase
+
+          git add evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
+          if git diff --cached --quiet; then
+            echo "No changes to evaluation-related files"
+          else
+            git commit -m "Auto update evaluation and self prediction files [skip ci]"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
+          fi
+        if git diff --cached --quiet; then
               echo "No changes to Numbers3_predictions.csv"
             else
               git commit -m "Hourly update Numbers3_predictions.csv [skip ci]"
