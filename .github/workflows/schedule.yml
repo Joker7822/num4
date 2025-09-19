@@ -213,3 +213,22 @@ jobs:
             git commit -m "Auto update prediction results [skip ci]"
             git push origin HEAD:${{ github.ref_name }}
           fi
+      - name: Commit and push remaining prediction results
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git fetch origin
+          git stash --include-untracked
+          git checkout ${{ github.ref_name }}
+          git pull --rebase origin ${{ github.ref_name }}
+          git stash pop || true
+          git add evaluation_result.csv evaluation_summary.txt self_predictions.csv
+          if git diff --cached --quiet; then
+            echo "No changes to evaluation-related files"
+          else
+            git commit -m "Auto update evaluation and self prediction files [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
