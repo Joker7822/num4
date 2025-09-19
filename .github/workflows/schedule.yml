@@ -88,21 +88,38 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -e
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          set -euo pipefail
+          safe_git_pull_rebase() {
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
 
-          git fetch origin
-          git pull --rebase origin "${{ github.ref_name }}"
+            # 未ステージ/未追跡の変更がある場合のみ stash
+            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "ci-temp-$(date +%s)"
+              STASHED=1
+            else
+              STASHED=0
+            fi
+
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+
+            if [ "$STASHED" = "1" ]; then
+              git stash pop || true
+            fi
+          }
+
+          safe_git_pull_rebase
 
           git add numbers3.csv || true
           if git diff --cached --quiet; then
             echo "No changes to numbers3.csv"
           else
             git commit -m "Auto update numbers3.csv [skip ci]"
-            git push origin HEAD:"${{ github.ref_name }}"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
       # ===== Optuna: Numbers3_predictions × numbers3.csv で探索 =====
@@ -128,21 +145,31 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -e
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          set -euo pipefail
+          safe_git_pull_rebase() {
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
+            else
+              STASHED=0
+            fi
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
+          }
 
-          git fetch origin
-          git pull --rebase origin "${{ github.ref_name }}"
+          safe_git_pull_rebase
 
           git add optuna_results/best_params.json || true
           if git diff --cached --quiet; then
             echo "No Optuna changes."
           else
             git commit -m "Auto update (${GITHUB_REF_NAME}): optuna results [skip ci]"
-            git push origin HEAD:"${{ github.ref_name }}"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
       # ===== （任意）diversity.json へ反映：他の処理で参照する場合のみ =====
@@ -190,21 +217,31 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -e
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          set -euo pipefail
+          safe_git_pull_rebase() {
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
+            else
+              STASHED=0
+            fi
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
+          }
 
-          git fetch origin
-          git pull --rebase origin "${{ github.ref_name }}"
+          safe_git_pull_rebase
 
           git add optuna_results/diversity.json || true
           if git diff --cached --quiet; then
             echo "No diversity changes."
           else
             git commit -m "Auto update (${GITHUB_REF_NAME}): apply best_params to diversity.json [skip ci]"
-            git push origin HEAD:"${{ github.ref_name }}"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
       # ===== 予測（numbers3_predictor.py が best_params.json を自動適用）=====
@@ -218,25 +255,35 @@ jobs:
         shell: bash
         timeout-minutes: 190  # 3時間運転の余裕（単一ジョブ上限に注意）
         run: |
-          set -e
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          set -euo pipefail
+          safe_git_pull_rebase() {
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
+            else
+              STASHED=0
+            fi
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
+          }
 
           for i in 1 2 3
           do
             echo "[INFO] Hourly Push Attempt $i"
 
-            git fetch origin
-            git pull --rebase origin "${{ github.ref_name }}"
+            safe_git_pull_rebase
 
             git add Numbers3_predictions.csv || true
             if git diff --cached --quiet; then
               echo "No changes to Numbers3_predictions.csv"
             else
               git commit -m "Hourly update Numbers3_predictions.csv [skip ci]"
-              git push origin HEAD:"${{ github.ref_name }}"
+              git push origin HEAD:"${GITHUB_REF_NAME}"
             fi
 
             if [ $i -lt 3 ]; then
@@ -250,19 +297,29 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -e
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          set -euo pipefail
+          safe_git_pull_rebase() {
+            git config --global user.name "github-actions"
+            git config --global user.email "github-actions@github.com"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
+            else
+              STASHED=0
+            fi
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME}"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
+          }
 
-          git fetch origin
-          git pull --rebase origin "${{ github.ref_name }}"
+          safe_git_pull_rebase
 
           git add evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
           if git diff --cached --quiet; then
             echo "No changes to evaluation-related files"
           else
             git commit -m "Auto update evaluation and self prediction files [skip ci]"
-            git push origin HEAD:"${{ github.ref_name }}"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
