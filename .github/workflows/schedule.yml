@@ -5,6 +5,9 @@ on:
     - cron: '0 11 * * 1-5'  # JST 20:00（UTC 11:00）、月〜金
   workflow_dispatch:
 
+permissions:
+  contents: write  # GITHUB_TOKEN で push 可能に
+
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
@@ -12,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # rebase/pushのため履歴を取得
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -47,7 +52,7 @@ jobs:
       - name: Install heavy dependencies
         run: pip install -r requirements_heavy.txt
 
-      # --- ここで NBSP/TAB/CRLF を除去して IndentationError を防止 ---
+      # --- NBSP/TAB/CRLF を除去して IndentationError を防止 ---
       - name: Sanitize source files (remove NBSP/tabs/CRLF)
         shell: bash
         run: |
@@ -82,17 +87,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          set -e
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git fetch origin
-          git reset --hard origin/${{ github.ref_name }}
+          git pull --rebase origin "${{ github.ref_name }}"
+
           git add numbers3.csv || true
           if git diff --cached --quiet; then
             echo "No changes to numbers3.csv"
           else
             git commit -m "Auto update numbers3.csv [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:"${{ github.ref_name }}"
           fi
 
       # ===== Optuna: Numbers3_predictions.csv × numbers3.csv で探索 =====
@@ -117,17 +126,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          set -e
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git fetch origin
-          git reset --hard origin/${{ github.ref_name }}
+          git pull --rebase origin "${{ github.ref_name }}"
+
           git add optuna_results/best_params.json || true
           if git diff --cached --quiet; then
             echo "No Optuna changes."
           else
             git commit -m "Auto update (${GITHUB_REF_NAME}): optuna results [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:"${{ github.ref_name }}"
           fi
 
       # ===== （任意）diversity.jsonへ反映：他の処理で使う場合のみ =====
@@ -170,21 +183,26 @@ jobs:
           PY
 
       - name: Commit diversity.json (applied best_params)
+        if: steps.apply-best.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          set -e
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git fetch origin
-          git reset --hard origin/${{ github.ref_name }}
+          git pull --rebase origin "${{ github.ref_name }}"
+
           git add optuna_results/diversity.json || true
           if git diff --cached --quiet; then
             echo "No diversity changes."
           else
             git commit -m "Auto update (${GITHUB_REF_NAME}): apply best_params to diversity.json [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:"${{ github.ref_name }}"
           fi
 
       # ===== 予測実行（numbers3_predictor.py が best_params.json を自動適用）=====
@@ -194,41 +212,23 @@ jobs:
       - name: Commit and push prediction results
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
+          set -e
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git fetch origin
-          git stash --include-untracked
-          git checkout ${{ github.ref_name }}
-          git pull --rebase origin ${{ github.ref_name }}
-          git stash pop || true
+          git pull --rebase origin "${{ github.ref_name }}"
 
-          git add Numbers3_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv
+          # 必要な生成物のみをステージング
+          git add Numbers3_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
 
           if git diff --cached --quiet; then
             echo "No prediction result changes"
           else
             git commit -m "Auto update prediction results [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
-          fi
-      - name: Commit and push remaining prediction results
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          git fetch origin
-          git stash --include-untracked
-          git checkout ${{ github.ref_name }}
-          git pull --rebase origin ${{ github.ref_name }}
-          git stash pop || true
-          git add evaluation_result.csv evaluation_summary.txt self_predictions.csv
-          if git diff --cached --quiet; then
-            echo "No changes to evaluation-related files"
-          else
-            git commit -m "Auto update evaluation and self prediction files [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:"${{ github.ref_name }}"
           fi
