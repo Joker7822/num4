@@ -1,13 +1,12 @@
-name: Auto Numbers3 with Optuna
+name: Auto Numbers3 with Optuna_v2
 
 on:
   schedule:
     - cron: '0 11 * * 1-5'  # JST 20:00（UTC 11:00）、月〜金
   workflow_dispatch:
 
-# GITHUB_TOKENでpushできるように必須
 permissions:
-  contents: write
+  contents: write  # GITHUB_TOKENでpush可能に
 
 jobs:
   run-scraper:
@@ -17,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # rebase/pull 用に履歴が必要
+          fetch-depth: 0  # rebase/pushのため履歴が必要
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,11 +25,10 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies and headless Chrome
-        shell: bash
         run: |
-          set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y wget unzip xvfb \
+          set -e
+          sudo apt update
+          sudo apt install -y wget unzip xvfb \
             libglib2.0-0 libnss3 libxi6 libxcomposite1 libxss1 \
             libatk-bridge2.0-0 libgtk-3-0 libasound2t64 || sudo apt-get install -y libasound2
 
@@ -55,7 +53,7 @@ jobs:
       - name: Install heavy dependencies
         run: pip install -r requirements_heavy.txt
 
-      # --- NBSP/TAB/CRLF を除去して IndentationError を防止 ---
+      # --- NBSP/TAB/CRLF を除去して IndentationError を予防 ---
       - name: Sanitize source files (remove NBSP/tabs/CRLF)
         shell: bash
         run: |
@@ -85,7 +83,7 @@ jobs:
       - name: Run scraping script
         run: xvfb-run -a python scrapingnumbers3.py
 
-      - name: Commit numbers3.csv if changed
+      - name: Commit and push numbers3.csv if changed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -94,8 +92,8 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
           git fetch origin
           git pull --rebase origin "${{ github.ref_name }}"
 
@@ -107,10 +105,10 @@ jobs:
             git push origin HEAD:"${{ github.ref_name }}"
           fi
 
-      # ===== Optuna: Numbers3_predictions.csv × numbers3.csv で探索 =====
+      # ===== Optuna: Numbers3_predictions × numbers3.csv で探索 =====
       - name: Run Optuna search (Numbers3)
         env:
-          NUMBERS3_CSV: ${{ env.NUMBERS3_CSV }}  # 任意：外部からCSVパスを渡す場合
+          NUMBERS3_CSV: ${{ env.NUMBERS3_CSV }}  # 任意: 別パスを渡す場合
         shell: bash
         run: |
           set -euo pipefail
@@ -134,8 +132,8 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
           git fetch origin
           git pull --rebase origin "${{ github.ref_name }}"
 
@@ -147,7 +145,7 @@ jobs:
             git push origin HEAD:"${{ github.ref_name }}"
           fi
 
-      # ===== （任意）diversity.jsonへ反映：他の処理で使う場合のみ =====
+      # ===== （任意）diversity.json へ反映：他の処理で参照する場合のみ =====
       - name: Apply best_params to diversity.json
         id: apply-best
         shell: bash
@@ -196,8 +194,8 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
           git fetch origin
           git pull --rebase origin "${{ github.ref_name }}"
 
@@ -209,11 +207,45 @@ jobs:
             git push origin HEAD:"${{ github.ref_name }}"
           fi
 
-      # ===== 予測実行（numbers3_predictor.py が best_params.json を自動適用）=====
+      # ===== 予測（numbers3_predictor.py が best_params.json を自動適用）=====
       - name: Run Numbers3 predictor
         run: xvfb-run -a python numbers3_predictor.py
 
-      - name: Commit and push prediction results
+      # ===== 予測CSVを最大3回（1時間間隔）プッシュ =====
+      - name: Push Numbers3_predictions.csv every hour up to 3 times
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        timeout-minutes: 190  # 3時間運転の余裕（単一ジョブ上限に注意）
+        run: |
+          set -e
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
+          for i in 1 2 3
+          do
+            echo "[INFO] Hourly Push Attempt $i"
+
+            git fetch origin
+            git pull --rebase origin "${{ github.ref_name }}"
+
+            git add Numbers3_predictions.csv || true
+            if git diff --cached --quiet; then
+              echo "No changes to Numbers3_predictions.csv"
+            else
+              git commit -m "Hourly update Numbers3_predictions.csv [skip ci]"
+              git push origin HEAD:"${{ github.ref_name }}"
+            fi
+
+            if [ $i -lt 3 ]; then
+              echo "Sleeping 1 hour before next push..."
+              sleep 3600
+            fi
+          done
+
+      - name: Commit and push remaining prediction results
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -222,17 +254,15 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
           git fetch origin
           git pull --rebase origin "${{ github.ref_name }}"
 
-          # 必要な生成物のみステージ
-          git add Numbers3_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
-
+          git add evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
           if git diff --cached --quiet; then
-            echo "No prediction result changes"
+            echo "No changes to evaluation-related files"
           else
-            git commit -m "Auto update prediction results [skip ci]"
+            git commit -m "Auto update evaluation and self prediction files [skip ci]"
             git push origin HEAD:"${{ github.ref_name }}"
           fi
