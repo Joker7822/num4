@@ -28,7 +28,7 @@ jobs:
         run: |
           set -e
           sudo apt update
-          sudo apt install -y wget unzip xvfb \
+          sudo apt install -y wget unzip xvfb inotify-tools \
             libglib2.0-0 libnss3 libxi6 libxcomposite1 libxss1 \
             libatk-bridge2.0-0 libgtk-3-0 libasound2t64 || sudo apt-get install -y libasound2
 
@@ -107,9 +107,7 @@ jobs:
             git checkout "${GITHUB_REF_NAME}"
             git pull --rebase origin "${GITHUB_REF_NAME}"
 
-            if [ "$STASHED" = "1" ]; then
-              git stash pop || true
-            fi
+            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
           }
 
           safe_git_pull_rebase
@@ -248,12 +246,12 @@ jobs:
       - name: Run Numbers3 predictor
         run: xvfb-run -a python numbers3_predictor.py
 
-      # ===== 予測CSVを最大3回（1時間間隔）プッシュ =====
-      - name: Push Numbers3_predictions.csv every hour up to 3 times
+      # ===== 変更の都度プッシュ（Numbers3_predictions.csv を監視）=====
+      - name: Push Numbers3_predictions.csv on change
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
-        timeout-minutes: 190  # 3時間運転の余裕（単一ジョブ上限に注意）
+        timeout-minutes: 180
         run: |
           set -euo pipefail
           safe_git_pull_rebase() {
@@ -272,23 +270,20 @@ jobs:
             if [ "$STASHED" = "1" ]; then git stash pop || true; fi
           }
 
-          for i in 1 2 3
-          do
-            echo "[INFO] Hourly Push Attempt $i"
+          FILE="Numbers3_predictions.csv"
+          # 監視対象が無いと inotifywait がエラーになるのでフォールバック作成
+          [ -f "$FILE" ] || touch "$FILE"
 
+          # 更新（close_write/moved_to/create）を検知してその都度 push
+          inotifywait -m -e close_write,moved_to,create --format '%w%f' "$FILE" |
+          while read changed; do
             safe_git_pull_rebase
-
-            git add Numbers3_predictions.csv || true
+            git add "$FILE" || true
             if git diff --cached --quiet; then
-              echo "No changes to Numbers3_predictions.csv"
+              echo "[info] No changes to $FILE"
             else
-              git commit -m "Hourly update Numbers3_predictions.csv [skip ci]"
+              git commit -m "Auto update $FILE [skip ci]"
               git push origin HEAD:"${GITHUB_REF_NAME}"
-            fi
-
-            if [ $i -lt 3 ]; then
-              echo "Sleeping 1 hour before next push..."
-              sleep 3600
             fi
           done
 
