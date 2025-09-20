@@ -219,7 +219,7 @@ jobs:
 
       # ===== 予測（numbers3_predictor.py が best_params.json を自動適用）=====
       - name: Run Numbers3 predictor
-        run: xvfb-run -a python numbers3_predictor_modified.py
+        run: xvfb-run -a python numbers3_predictor.py
 
       # ===== 予測結果を変更の都度プッシュ =====
       - name: Commit predictions if changed (push immediately)
