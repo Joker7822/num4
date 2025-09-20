@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write  # GITHUB_TOKENでpush可能に
 
+concurrency:
+  group: numbers3-optuna-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
@@ -28,7 +32,7 @@ jobs:
         run: |
           set -e
           sudo apt update
-          sudo apt install -y wget unzip xvfb inotify-tools \
+          sudo apt install -y wget unzip xvfb \
             libglib2.0-0 libnss3 libxi6 libxcomposite1 libxss1 \
             libatk-bridge2.0-0 libgtk-3-0 libasound2t64 || sudo apt-get install -y libasound2
 
@@ -79,39 +83,46 @@ jobs:
                   print(f"[warn] compile failed for {p}: {e}", file=sys.stderr)
           PY
 
+      # ===== 共通: 安全に pull --rebase する関数を定義 =====
+      - name: Define safe pull function
+        shell: bash
+        run: |
+          cat <<'SH' > /tmp/safe_pull.sh
+          set -euo pipefail
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+
+          # 未ステージ/未追跡の変更がある場合のみ stash
+          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            git stash push -u -m "ci-temp-$(date +%s)"
+            STASHED=1
+          else
+            STASHED=0
+          fi
+
+          git fetch origin
+          git checkout "${GITHUB_REF_NAME}"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+
+          # 可能なら戻す（失敗しても続行）
+          if [ "$STASHED" = "1" ]; then
+            git stash pop || true
+          fi
+          SH
+          chmod +x /tmp/safe_pull.sh
+
       # ===== スクレイピング & numbers3.csv 更新 =====
       - name: Run scraping script
         run: xvfb-run -a python scrapingnumbers3.py
 
-      - name: Commit and push numbers3.csv if changed
+      - name: Commit numbers3.csv if changed (push immediately)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -euo pipefail
-          safe_git_pull_rebase() {
-            git config --global user.name "github-actions"
-            git config --global user.email "github-actions@github.com"
-            git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-
-            # 未ステージ/未追跡の変更がある場合のみ stash
-            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-              git stash push -u -m "ci-temp-$(date +%s)"
-              STASHED=1
-            else
-              STASHED=0
-            fi
-
-            git fetch origin
-            git checkout "${GITHUB_REF_NAME}"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-
-            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
-          }
-
-          safe_git_pull_rebase
-
+          /tmp/safe_pull.sh
           git add numbers3.csv || true
           if git diff --cached --quiet; then
             echo "No changes to numbers3.csv"
@@ -138,30 +149,12 @@ jobs:
             --storage sqlite:///optuna_results/optuna_study.db \
             --study_name numbers3_optuna
 
-      - name: Commit Optuna results
+      - name: Commit Optuna best_params.json (push immediately)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -euo pipefail
-          safe_git_pull_rebase() {
-            git config --global user.name "github-actions"
-            git config --global user.email "github-actions@github.com"
-            git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
-            else
-              STASHED=0
-            fi
-            git fetch origin
-            git checkout "${GITHUB_REF_NAME}"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
-          }
-
-          safe_git_pull_rebase
-
+          /tmp/safe_pull.sh
           git add optuna_results/best_params.json || true
           if git diff --cached --quiet; then
             echo "No Optuna changes."
@@ -209,31 +202,13 @@ jobs:
               g.write(f"topk={topk}\n")
           PY
 
-      - name: Commit diversity.json (applied best_params)
+      - name: Commit diversity.json if changed (optional, push immediately)
         if: steps.apply-best.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -euo pipefail
-          safe_git_pull_rebase() {
-            git config --global user.name "github-actions"
-            git config --global user.email "github-actions@github.com"
-            git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
-            else
-              STASHED=0
-            fi
-            git fetch origin
-            git checkout "${GITHUB_REF_NAME}"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
-          }
-
-          safe_git_pull_rebase
-
+          /tmp/safe_pull.sh
           git add optuna_results/diversity.json || true
           if git diff --cached --quiet; then
             echo "No diversity changes."
@@ -246,75 +221,17 @@ jobs:
       - name: Run Numbers3 predictor
         run: xvfb-run -a python numbers3_predictor.py
 
-      # ===== 変更の都度プッシュ（Numbers3_predictions.csv を監視）=====
-      - name: Push Numbers3_predictions.csv on change
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        timeout-minutes: 180
-        run: |
-          set -euo pipefail
-          safe_git_pull_rebase() {
-            git config --global user.name "github-actions"
-            git config --global user.email "github-actions@github.com"
-            git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
-            else
-              STASHED=0
-            fi
-            git fetch origin
-            git checkout "${GITHUB_REF_NAME}"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
-          }
-
-          FILE="Numbers3_predictions.csv"
-          # 監視対象が無いと inotifywait がエラーになるのでフォールバック作成
-          [ -f "$FILE" ] || touch "$FILE"
-
-          # 更新（close_write/moved_to/create）を検知してその都度 push
-          inotifywait -m -e close_write,moved_to,create --format '%w%f' "$FILE" |
-          while read changed; do
-            safe_git_pull_rebase
-            git add "$FILE" || true
-            if git diff --cached --quiet; then
-              echo "[info] No changes to $FILE"
-            else
-              git commit -m "Auto update $FILE [skip ci]"
-              git push origin HEAD:"${GITHUB_REF_NAME}"
-            fi
-          done
-
-      - name: Commit and push remaining prediction results
+      # ===== 予測結果を変更の都度プッシュ =====
+      - name: Commit predictions if changed (push immediately)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -euo pipefail
-          safe_git_pull_rebase() {
-            git config --global user.name "github-actions"
-            git config --global user.email "github-actions@github.com"
-            git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-            if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-              git stash push -u -m "ci-temp-$(date +%s)"; STASHED=1
-            else
-              STASHED=0
-            fi
-            git fetch origin
-            git checkout "${GITHUB_REF_NAME}"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            if [ "$STASHED" = "1" ]; then git stash pop || true; fi
-          }
-
-          safe_git_pull_rebase
-
-          git add evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
+          /tmp/safe_pull.sh
+          git add Numbers3_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
           if git diff --cached --quiet; then
-            echo "No changes to evaluation-related files"
+            echo "No prediction result changes"
           else
-            git commit -m "Auto update evaluation and self prediction files [skip ci]"
+            git commit -m "Auto update prediction results [skip ci]"
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
