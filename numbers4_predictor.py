@@ -1313,7 +1313,7 @@ class CycleAttentionTransformer(nn.Module):
         self.ff = nn.Sequential(
             nn.Linear(embed_dim, 128),
             nn.ReLU(),
-            nn.Linear(128, 4)
+            nn.Linear(128, NUM_DIGITS)
         )
 
     def forward(self, x):
@@ -1339,7 +1339,7 @@ def train_transformer_with_cycle_attention(df, model_path="transformer_model.pth
             self.ff = nn.Sequential(
                 nn.Linear(embed_dim, 128),
                 nn.ReLU(),
-                nn.Linear(128, 3)
+                nn.Linear(128, NUM_DIGITS)
             )
 
         def forward(self, x):
@@ -1388,7 +1388,7 @@ def transformer_generate_predictions(df, model_path="transformer_model.pth"):
             self.ff = nn.Sequential(
                 nn.Linear(embed_dim, 128),
                 nn.ReLU(),
-                nn.Linear(128, 3)
+                nn.Linear(128, NUM_DIGITS)
             )
 
         def forward(self, x):
@@ -1410,7 +1410,12 @@ def transformer_generate_predictions(df, model_path="transformer_model.pth"):
     model = _CycleTransformer()
     if not os.path.exists(model_path):
         train_transformer_with_cycle_attention(df, model_path=model_path)
-    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    try:
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    except RuntimeError as e:
+        logger.warning(f"Transformerモデルの読み込みに失敗: {e} / 再学習します")
+        train_transformer_with_cycle_attention(df, model_path=model_path)
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
 
     with torch.no_grad():
