@@ -98,7 +98,7 @@ for year in range(2024, 2026):
 # Numbers4 は4番目のセル（index: 3）を読む。
 for url in old_urls:
     driver.get(url)
-    time.sleep(2)
+    time.sleep(3)
     saved_count = 0
     try:
         rows = driver.find_elements(
@@ -148,6 +148,7 @@ for url in old_urls:
 # が入っているので、Numbers4 は td[2] を読む。
 for url in new_urls:
     driver.get(url)
+    time.sleep(3)
     saved_count = 0
     try:
         WebDriverWait(driver, 15).until(
@@ -211,7 +212,7 @@ for url in new_urls:
 # === ✅ 月別形式（Numbers4 月別ページ） ===
 for url in month_urls:
     driver.get(url)
-    time.sleep(2)
+    time.sleep(3)
     saved_count = 0
     try:
         tables = driver.find_elements(By.CSS_SELECTOR, "table.section__table")
@@ -280,7 +281,7 @@ for url in month_urls:
 # === ✅ 最新抽せん結果（ナンバーズ4 トップページ）取得 ===
 latest_url = "https://www.mizuhobank.co.jp/takarakuji/check/numbers/numbers4/index.html"
 driver.get(latest_url)
-time.sleep(2)
+time.sleep(3)
 
 try:
     wait = WebDriverWait(driver, 10)
