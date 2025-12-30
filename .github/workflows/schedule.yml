@@ -1,4 +1,4 @@
-name: Auto Numbers3 with Optuna_v2
+name: Auto Numbers4 with Optuna_v2
 
 on:
   schedule:
@@ -9,7 +9,7 @@ permissions:
   contents: write  # GITHUB_TOKENでpush可能に
 
 concurrency:
-  group: numbers3-optuna-${{ github.ref }}
+  group: numbers4-optuna-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -63,7 +63,8 @@ jobs:
         run: |
           python - <<'PY'
           import sys, pathlib, py_compile
-          files = ["optuna_search_resumable.py", "numbers3_predictor.py"]
+          # Numbers4 用: predictor は numbers4_predictor.py を想定
+          files = ["optuna_search_resumable.py", "numbers4_predictor.py"]
           for p in files:
               path = pathlib.Path(p)
               if not path.exists():
@@ -113,7 +114,7 @@ jobs:
           SH
           chmod +x /tmp/safe_pull.sh
 
-      # ===== スクレイピング & numbers3.csv 更新 =====
+      # ===== スクレイピング & numbers4.csv 更新 =====
       - name: Run scraping script
         run: xvfb-run -a python scrapingnumbers4.py
 
@@ -123,7 +124,7 @@ jobs:
         shell: bash
         run: |
           /tmp/safe_pull.sh
-          git add numbers3.csv || true
+          git add numbers4.csv || true
           if git diff --cached --quiet; then
             echo "No changes to numbers4.csv"
           else
@@ -131,10 +132,11 @@ jobs:
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
-      # ===== Optuna: Numbers3_predictions × numbers3.csv で探索 =====
-      - name: Run Optuna search (Numbers3)
+      # ===== Optuna: Numbers4_predictions × numbers4.csv で探索 =====
+      - name: Run Optuna search (Numbers4)
         env:
-          NUMBERS3_CSV: ${{ env.NUMBERS3_CSV }}  # 任意: 別パスを渡す場合
+          # 任意: 別パスを渡したい場合は workflow やリポジトリ側で NUMBERS4_CSV を定義
+          NUMBERS4_CSV: ${{ env.NUMBERS4_CSV }}
         shell: bash
         run: |
           set -euo pipefail
@@ -147,7 +149,7 @@ jobs:
             --n_trials 80 \
             --out optuna_results/best_params.json \
             --storage sqlite:///optuna_results/optuna_study.db \
-            --study_name numbers3_optuna
+            --study_name numbers4_optuna
 
       - name: Commit Optuna best_params.json (push immediately)
         env:
@@ -163,7 +165,7 @@ jobs:
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
-      # ===== （任意）diversity.json へ反映：他の処理で参照する場合のみ =====
+      # ===== diversity.json へ反映：他の処理で参照する場合のみ =====
       - name: Apply best_params to diversity.json
         id: apply-best
         shell: bash
@@ -186,16 +188,16 @@ jobs:
               except Exception:
                   div = {}
 
-          # Numbers3 の既定値（best_params が無い場合のフォールバック）
+          # Numbers4 の既定値（best_params が無い場合のフォールバック）
           div.setdefault("max_sim", 0.6)
-          for k in ("max_sim","lambda_div","temperature"):
+          for k in ("max_sim", "lambda_div", "temperature"):
               if k in best:
                   try:
                       div[k] = float(best[k])
                   except Exception:
                       div[k] = best[k]
 
-          topk = int(best.get("topk", os.environ.get("NUMBERS3_TOPK", "5")))
+          topk = int(best.get("topk", os.environ.get("NUMBERS4_TOPK", "5")))
           div_p.write_text(json.dumps(div, ensure_ascii=False, indent=2), encoding="utf-8")
 
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as g:
@@ -217,9 +219,9 @@ jobs:
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
-      # ===== 予測（numbers3_predictor.py が best_params.json を自動適用）=====
-      - name: Run Numbers3 predictor
-        run: xvfb-run -a python numbers3_predictor.py
+      # ===== 予測（numbers4_predictor.py が best_params.json を自動適用）=====
+      - name: Run Numbers4 predictor
+        run: xvfb-run -a python numbers4_predictor.py
 
       # ===== 予測結果を変更の都度プッシュ =====
       - name: Commit predictions if changed (push immediately)
@@ -228,10 +230,10 @@ jobs:
         shell: bash
         run: |
           /tmp/safe_pull.sh
-          git add Numbers3_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
+          git add Numbers4_predictions.csv evaluation_result.csv evaluation_summary.txt self_predictions.csv || true
           if git diff --cached --quiet; then
             echo "No prediction result changes"
           else
-            git commit -m "Auto update prediction results [skip ci]"
+            git commit -m "Auto update Numbers4 prediction results [skip ci]"
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
