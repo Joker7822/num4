@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Mizuho銀行 ナンバーズ3 抽せん結果スクレイパ（堅牢版）
+Mizuho銀行 ナンバーズ4 抽せん結果スクレイパ（堅牢版）
 - PC/SPどちらのテーブルにも対応（.js-lottery-temp-pc / -sp / フォールバック）
 - 中身(textContent)が入るまで待機 + リロード再試行
 - 既存CSVに追記（同一「抽せん日」をスキップ）＆日付昇順整列
@@ -19,8 +19,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-URL = "https://www.mizuhobank.co.jp/takarakuji/check/numbers/numbers3/index.html"
-CSV_PATH = "numbers3.csv"
+URL = "https://www.mizuhobank.co.jp/takarakuji/check/numbers/numbers4/index.html"
+CSV_PATH = "numbers4.csv"
 
 # PC/SP どちらでも当たるよう幅広く
 TABLE_SELECTOR_ANY = (
@@ -78,12 +78,20 @@ def wait_for_tables(driver, timeout_total: int = 45, retries: int = 2):
 
             # ローディング文言の消失（あれば）
             try:
-                wait.until(EC.invisibility_of_element_located((By.CSS_SELECTOR, ".js-now-loading")))
+                wait.until(
+                    EC.invisibility_of_element_located(
+                        (By.CSS_SELECTOR, ".js-now-loading")
+                    )
+                )
             except Exception:
                 pass
 
             # どれかのテーブルが出るまで待機
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, TABLE_SELECTOR_ANY)))
+            wait.until(
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, TABLE_SELECTOR_ANY)
+                )
+            )
 
             # 中身が入るまでポーリング
             t_end = time.time() + timeout_total
@@ -95,18 +103,31 @@ def wait_for_tables(driver, timeout_total: int = 45, retries: int = 2):
                     continue
 
                 t0 = tables[0]
-                date_el = _find_first(t0, [".js-lottery-date-pc", ".js-lottery-date"])
-                issue_el = _find_first(t0, [".js-lottery-issue-pc", ".js-lottery-issue"])
-                num_el = _find_first(t0, [".js-lottery-number-pc", ".js-lottery-number"])
+                date_el = _find_first(
+                    t0, [".js-lottery-date-pc", ".js-lottery-date"]
+                )
+                issue_el = _find_first(
+                    t0, [".js-lottery-issue-pc", ".js-lottery-issue"]
+                )
+                num_el = _find_first(
+                    t0, [".js-lottery-number-pc", ".js-lottery-number"]
+                )
 
-                if date_el and issue_el and num_el and all(_filled(x) for x in (date_el, issue_el, num_el)):
+                if (
+                    date_el
+                    and issue_el
+                    and num_el
+                    and all(_filled(x) for x in (date_el, issue_el, num_el))
+                ):
                     return  # 準備OK
                 time.sleep(0.5)
 
             # タイムアウト → 次の試行のためリロード
             if attempt <= retries:
                 driver.refresh()
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight/2);")
+                driver.execute_script(
+                    "window.scrollTo(0, document.body.scrollHeight/2);"
+                )
                 time.sleep(1.2)
                 continue
             else:
@@ -140,7 +161,9 @@ def parse_tables(driver):
 
         # 日付
         try:
-            draw_date = datetime.strptime(date_text, "%Y年%m月%d日").strftime("%Y-%m-%d")
+            draw_date = datetime.strptime(date_text, "%Y年%m月%d日").strftime(
+                "%Y-%m-%d"
+            )
         except Exception:
             m = re.search(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日", date_text)
             if not m:
@@ -148,25 +171,34 @@ def parse_tables(driver):
             y, mo, d = map(int, m.groups())
             draw_date = f"{y:04d}-{mo:02d}-{d:02d}"
 
-        # 数字
+        # 当せん数字（4桁）
         digits = [int(d) for d in re.findall(r"\d", num_text)]
         main_number = str(digits)
 
-        # 賞金
-        prize_rows = t.find_elements(By.CSS_SELECTOR, "tr.js-lottery-prize-pc, tr.js-lottery-prize")
+        # 賞金（ストレート / ボックス / セット(ストレート) / セット(ボックス) / 販売実績額）
+        prize_rows = t.find_elements(
+            By.CSS_SELECTOR, "tr.js-lottery-prize-pc, tr.js-lottery-prize"
+        )
         prizes = []
         for pr in prize_rows:
-            strongs = pr.find_elements(By.CSS_SELECTOR, "td strong.section__text--bold, td strong")
+            strongs = pr.find_elements(
+                By.CSS_SELECTOR, "td strong.section__text--bold, td strong"
+            )
             val = None
             if strongs:
                 txt = strongs[-1].get_attribute("textContent").strip()
                 if "円" in txt:
                     try:
-                        val = int(txt.replace(",", "").replace("円", "").strip())
+                        val = int(
+                            txt.replace(",", "")
+                            .replace("円", "")
+                            .strip()
+                        )
                     except Exception:
                         val = None
             prizes.append(val)
 
+        # 5個（ストレート / ボックス / セットS / セットB / 販売実績額）揃うように埋める
         while len(prizes) < 5:
             prizes.append(None)
 
@@ -179,7 +211,7 @@ def parse_tables(driver):
                 "ボックス": prizes[1],
                 "セット(ストレート)": prizes[2],
                 "セット(ボックス)": prizes[3],
-                "ミニ": prizes[4],
+                "販売実績額": prizes[4],
             }
         )
     return results
@@ -201,7 +233,7 @@ def load_existing(csv_path: str):
             "ボックス",
             "セット(ストレート)",
             "セット(ボックス)",
-            "ミニ",
+            "販売実績額",
         ]
         return pd.DataFrame(), set(), fieldnames
 
@@ -233,25 +265,30 @@ def main():
     driver = build_driver(headless=True)
     try:
         driver.get(URL)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight/3);")
+        driver.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight/3);"
+        )
         time.sleep(0.8)
 
-        # ★ 旧: wait_until_loaded(driver, ...) → 新: wait_for_tables(...)
         wait_for_tables(driver, timeout_total=45, retries=2)
         scraped = parse_tables(driver)
     finally:
         driver.quit()
 
     if not scraped:
-        print("[INFO] 表が取得できませんでした（ページ構造変更/一時的な読込失敗の可能性）。")
+        print(
+            "[INFO] 表が取得できませんでした（ページ構造変更/一時的な読込失敗の可能性）。"
+        )
         return
 
-    existing_df, existing_dates, fieldnames = load_existing(CSV_PATH)
+    _, existing_dates, fieldnames = load_existing(CSV_PATH)
     new_rows = [row for row in scraped if row["抽せん日"] not in existing_dates]
 
     saved = append_and_sort(CSV_PATH, fieldnames, new_rows)
     if saved:
-        print(f"[INFO] {saved}件を保存し、日付順に並び替えました。CSV: {CSV_PATH}")
+        print(
+            f"[INFO] {saved}件を保存し、日付順に並び替えました。CSV: {CSV_PATH}"
+        )
     else:
         print("[INFO] 既存CSVと同一日のため、新規保存はありません。")
 
