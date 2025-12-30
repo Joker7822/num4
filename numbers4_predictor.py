@@ -1672,6 +1672,23 @@ def evaluate_and_summarize_predictions(
         if isinstance(path, str) and os.path.exists(path):
             files_to_push.append(path)
 
+    # 追加: 学習済み重み（.pth）も commit/push 対象にする
+    try:
+        import glob
+
+        # よく使うモデル名（明示）＋ カレント直下の *.pth（保険）
+        for p in [
+            "gpt3numbers.pth",
+            "memory_encoder.pth",
+            "diffusion_model.pth",
+            "transformer_model.pth",
+        ] + glob.glob("*.pth"):
+            if isinstance(p, str) and os.path.exists(p) and p not in files_to_push:
+                files_to_push.append(p)
+    except Exception as e:
+        logger.warning(f".pthファイル収集エラー: {e}")
+
+
     if files_to_push:
         git_commit_and_push(
             files_to_push,
