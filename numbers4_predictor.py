@@ -904,6 +904,8 @@ def train_gpt3numbers_model_with_memory(
     torch.save(encoder.state_dict(), encoder_path)
     logger.info(f"GPT3Numbers 保存: {save_path}")
     logger.info(f"MemoryEncoder 保存: {encoder_path}")
+    # .pth が更新されたタイミングで即 push（差分が無ければ何もしない）
+    git_commit_and_push([save_path, encoder_path], "Auto update GPT3Numbers/MemoryEncoder models [skip ci]")
     return decoder, encoder
 
 def gpt_generate_predictions_with_memory(decoder, encoder, history_sequences, num_samples=5):
@@ -997,6 +999,8 @@ def train_gpt3numbers_model(save_path="gpt3numbers.pth", epochs=50):
 
     torch.save(model.state_dict(), save_path)
     logger.info(f"GPT3Numbers モデルを保存しました: {save_path}")
+    # .pth が更新されたタイミングで即 push（差分が無ければ何もしない）
+    git_commit_and_push(save_path, "Auto update GPT3Numbers model [skip ci]")
     return model
 
 class LotoPredictor:
@@ -1341,6 +1345,8 @@ def train_diffusion_model(df, model_path="diffusion_model.pth", epochs=300, devi
 
     torch.save(model.state_dict(), model_path)
     logger.info(f"Diffusion モデルを保存しました: {model_path}")
+    # .pth が更新されたタイミングで即 push（差分が無ければ何もしない）
+    git_commit_and_push(model_path, "Auto update diffusion model [skip ci]")
 
 def diffusion_generate_predictions(df, num_predictions=5, model_path="diffusion_model.pth"):
     class DiffusionMLP(nn.Module):
@@ -1458,6 +1464,8 @@ def train_transformer_with_cycle_attention(df, model_path="transformer_model.pth
 
     torch.save(model.state_dict(), model_path)
     logger.info(f"Transformerモデルを保存しました: {model_path}")
+    # .pth が更新されたタイミングで即 push（差分が無ければ何もしない）
+    git_commit_and_push(model_path, "Auto update transformer model [skip ci]")
 
 def transformer_generate_predictions(df, model_path="transformer_model.pth"):
     class _CycleTransformer(nn.Module):
@@ -1754,22 +1762,8 @@ def evaluate_and_summarize_predictions(
         if isinstance(path, str) and os.path.exists(path):
             files_to_push.append(path)
 
-    # 追加: 学習済み重み（.pth）も commit/push 対象にする
-    try:
-        import glob
 
-        # よく使うモデル名（明示）＋ カレント直下の *.pth（保険）
-        for p in [
-            "gpt3numbers.pth",
-            "memory_encoder.pth",
-            "diffusion_model.pth",
-            "transformer_model.pth",
-        ] + glob.glob("*.pth"):
-            if isinstance(p, str) and os.path.exists(p) and p not in files_to_push:
-                files_to_push.append(p)
-    except Exception as e:
-        logger.warning(f".pthファイル収集エラー: {e}")
-
+    # NOTE: .pth は学習（torch.save）した瞬間に train_* 内で git_commit_and_push する設計に変更（ここではまとめて push しない）
 
     if files_to_push:
         git_commit_and_push(
