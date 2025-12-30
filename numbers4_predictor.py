@@ -117,35 +117,117 @@ DEFAULT_CONFIG = LotoConfig()
 
 import subprocess
 
-def git_commit_and_push(file_paths, message):
+def _clip_text(s: str, limit: int = 2000) -> str:
+    if s is None:
+        return ""
+    s = str(s)
+    if len(s) <= limit:
+        return s
+    return s[:limit] + f"\n...(truncated {len(s) - limit} chars)"
+
+def run_git(cmd: list[str], check: bool = True):
+    """git コマンドを実行し、失敗時は stdout/stderr も含めてログに出す。"""
+    env = os.environ.copy()
+    # CIなどで認証が必要なときにプロンプト待ちで固まるのを防ぐ
+    env.setdefault("GIT_TERMINAL_PROMPT", "0")
+
+    cmd_str = " ".join(cmd)
+    r = subprocess.run(cmd, capture_output=True, text=True, env=env)
+
+    if r.stdout:
+        logger.info(f"[git stdout] {cmd_str}\n{_clip_text(r.stdout)}")
+    if r.stderr:
+        # 成功時でも進捗が stderr に出ることがあるので、成功時はINFO、失敗時はWARNING
+        (logger.warning if r.returncode != 0 else logger.info)(
+            f"[git stderr] {cmd_str}\n{_clip_text(r.stderr)}"
+        )
+
+    if check and r.returncode != 0:
+        raise subprocess.CalledProcessError(r.returncode, cmd, output=r.stdout, stderr=r.stderr)
+    return r
+
+def git_commit_and_push(file_paths, message, remote: str = "origin"):
     """
     file_paths: str または str のリスト
     変更があるファイルが無い場合は何もしない。
+    失敗した場合は、git の stderr/stdout をログに出す。
     """
     try:
+        # git 管理下かチェック（違う場合は静かにスキップ）
+        try:
+            run_git(["git", "rev-parse", "--is-inside-work-tree"], check=True)
+        except Exception:
+            logger.warning("git_commit_and_push: このディレクトリは git リポジトリではありません。push をスキップします。")
+            return
+
         # 文字列単体でもリストでも受け取れるようにする
         if isinstance(file_paths, str):
             file_paths = [file_paths]
 
-        # 実在するファイルだけ add 対象にする
-        paths_to_add = [p for p in file_paths if p and os.path.exists(p)]
+        # 実在するファイルだけ add 対象にする（重複は除去）
+        seen = set()
+        paths_to_add = []
+        for p in file_paths:
+            if isinstance(p, str) and p and os.path.exists(p) and p not in seen:
+                paths_to_add.append(p)
+                seen.add(p)
+
         if not paths_to_add:
             logger.info("git_commit_and_push: 追加対象ファイルがありません。")
             return
 
-        # まとめて add
-        subprocess.run(["git", "add", *paths_to_add], check=True)
+        # add
+        run_git(["git", "add", "--", *paths_to_add], check=True)
 
-        # 何か staged されているかチェック
-        diff = subprocess.run(["git", "diff", "--cached", "--quiet"])
-        if diff.returncode != 0:
-            subprocess.run(["git", "config", "--global", "user.name", "github-actions"], check=True)
-            subprocess.run(["git", "config", "--global", "user.email", "github-actions@github.com"], check=True)
-            subprocess.run(["git", "commit", "-m", message], check=True)
-            subprocess.run(["git", "push"], check=True)
-        else:
+        # 何か staged されているかチェック（差分なしなら return）
+        diff = run_git(["git", "diff", "--cached", "--quiet"], check=False)
+        if diff.returncode == 0:
             logger.info(f"No changes in {', '.join(paths_to_add)}")
+            return
+
+        # user.name / user.email が未設定だと commit が落ちるので repo-local に設定
+        name = run_git(["git", "config", "user.name"], check=False).stdout.strip()
+        email = run_git(["git", "config", "user.email"], check=False).stdout.strip()
+        if not name:
+            run_git(["git", "config", "user.name", "github-actions"], check=True)
+        if not email:
+            run_git(["git", "config", "user.email", "github-actions@github.com"], check=True)
+
+        # commit
+        run_git(["git", "commit", "-m", message], check=True)
+
+        # upstream が無い場合は -u を付けて push（初回 push でよくある）
+        branch = run_git(["git", "branch", "--show-current"], check=False).stdout.strip()
+        upstream = run_git(["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"], check=False)
+
+        if upstream.returncode == 0:
+            push_cmd = ["git", "push"]
+        else:
+            # detached HEAD でも動くように fallback
+            ref = branch if branch else "HEAD"
+            push_cmd = ["git", "push", "-u", remote, ref]
+
+        try:
+            run_git(push_cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            err = (e.stderr or "") + "\n" + (e.output or "")
+            low = err.lower()
+
+            # よくある: リモートが先行している（non-fast-forward）
+            if ("non-fast-forward" in low) or ("fetch first" in low) or ("rejected" in low):
+                logger.warning("git push が拒否されました。git pull --rebase を試行して再 push します。")
+                run_git(["git", "pull", "--rebase"], check=True)
+                run_git(push_cmd, check=True)
+                return
+
+            # よくある: 大きすぎるファイル（.pth で起きがち）
+            if ("file size limit" in low) or ("exceeds" in low and "mb" in low) or ("large files" in low):
+                logger.warning("push がファイルサイズ制限で拒否された可能性があります。*.pth は Git LFS の利用を推奨します。")
+
+            raise
+
     except Exception as e:
+        # ここに来た時点で stderr は run_git が出しているので、最後に例外だけ短く出す
         logger.warning(f"Git commit/push failed: {e}")
 
 def count_digit_matches(pred, actual):
