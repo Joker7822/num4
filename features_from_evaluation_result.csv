@@ -255,3 +255,7 @@
 1995-08-04,1995,8,4,4,1,1.1897,0,2,4,5,4,11,0,5,5,2.75,1.920286436967152,3,0,1,1,4,5,0,3,3,1.25,1.0897247358851685,1,True,False,False,False,False,True,False,False,True,False,False
 1995-08-04,1995,8,4,4,0,1.1751,5,7,8,9,4,29,5,9,4,7.25,1.479019945774904,3,0,1,1,4,5,0,3,3,1.25,1.0897247358851685,0,False,False,False,False,False,True,False,False,False,True,False
 1995-08-04,1995,8,4,4,1,1.1722,1,4,6,9,4,20,1,9,8,5.0,2.9154759474226504,3,0,1,1,4,5,0,3,3,1.25,1.0897247358851685,1,True,False,False,False,False,True,False,False,False,False,True
+1995-08-08,1995,8,8,1,1,1.1564,2,4,5,8,4,19,2,8,6,4.75,2.165063509461097,2,3,3,2,4,10,2,3,1,2.5,0.5,1,True,False,False,False,True,False,False,True,False,False,False
+1995-08-08,1995,8,8,1,4,1.2155,2,2,3,3,4,10,2,3,1,2.5,0.5,2,3,3,2,4,10,2,3,1,2.5,0.5,4,True,False,False,True,False,False,False,False,True,False,False
+1995-08-08,1995,8,8,1,1,1.1897,0,2,4,5,4,11,0,5,5,2.75,1.920286436967152,2,3,3,2,4,10,2,3,1,2.5,0.5,1,True,False,False,False,False,True,False,False,False,True,False
+1995-08-08,1995,8,8,1,0,1.1751,5,7,8,9,4,29,5,9,4,7.25,1.479019945774904,2,3,3,2,4,10,2,3,1,2.5,0.5,0,False,False,False,False,False,True,False,False,False,False,True
