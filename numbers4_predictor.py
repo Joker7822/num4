@@ -61,10 +61,7 @@ import torch.nn.functional as F
 import math
 import torch.nn.functional as F
 import math
-try:
-    import make_features_numbers4 as make_features  # Numbers4版
-except ImportError:
-    import make_features  # 互換用フォールバック
+# NOTE: make_features_* は subprocess でスクリプト実行するため import は不要（Pylanceの警告回避）
 
 logging.basicConfig(
     level=logging.INFO,
