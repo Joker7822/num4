@@ -115,9 +115,9 @@ jobs:
 
       # ===== スクレイピング & numbers3.csv 更新 =====
       - name: Run scraping script
-        run: xvfb-run -a python scrapingnumbers3.py
+        run: xvfb-run -a python scrapingnumbers4.py
 
-      - name: Commit numbers3.csv if changed (push immediately)
+      - name: Commit numbers4.csv if changed (push immediately)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -125,9 +125,9 @@ jobs:
           /tmp/safe_pull.sh
           git add numbers3.csv || true
           if git diff --cached --quiet; then
-            echo "No changes to numbers3.csv"
+            echo "No changes to numbers4.csv"
           else
-            git commit -m "Auto update numbers3.csv [skip ci]"
+            git commit -m "Auto update numbers4.csv [skip ci]"
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
@@ -139,10 +139,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p optuna_results
-          CSV_PATH="${NUMBERS3_CSV:-numbers3.csv}"
+          CSV_PATH="${NUMBERS4_CSV:-numbers4.csv}"
 
           xvfb-run -a python optuna_search_resumable.py \
-            --backfill Numbers3_predictions.csv \
+            --backfill Numbers4_predictions.csv \
             --csv "${CSV_PATH}" \
             --n_trials 80 \
             --out optuna_results/best_params.json \
