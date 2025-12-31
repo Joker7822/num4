@@ -4,6 +4,7 @@ Mizuho銀行 ナンバーズ4 抽せん結果スクレイパ（堅牢版）
 - PC/SPどちらのテーブルにも対応（.js-lottery-temp-pc / -sp / フォールバック）
 - 中身(textContent)が入るまで待機 + リロード再試行
 - 既存CSVに追記（同一「抽せん日」をスキップ）＆日付昇順整列
+- 既存CSVの列名を正規化（セット系 & 販売実績額）してから整形
 """
 
 import csv
@@ -22,12 +23,24 @@ from selenium.webdriver.support.ui import WebDriverWait
 URL = "https://www.mizuhobank.co.jp/takarakuji/check/numbers/numbers4/index.html"
 CSV_PATH = "numbers4.csv"
 
-# PC/SP どちらでも当たるよう幅広く
-TABLE_SELECTOR_ANY = (
-    ".section__table-wrap .js-lottery-temp-pc, "
-    ".section__table-wrap .js-lottery-temp-sp, "
-    ".section__table-wrap table.section__table"
-)
+# 列名は常にこれで固定（ここが「正」となる）
+FIELDNAMES = [
+    "抽せん日",
+    "本数字",
+    "回別",
+    "ストレート",
+    "ボックス",
+    "セット(ストレート)",
+    "セット(ボックス)",
+    "販売実績額",
+]
+
+# 旧バージョンで作られたCSVの列名を、新しい正式名に揃えるためのマッピング
+COLUMN_ALIASES = {
+    "セット（ストレート）": "セット(ストレート)",
+    "セット（ボックス）": "セット(ボックス)",
+    "ミニ": "販売実績額",  # 万が一 Numbers3 っぽい列名が混ざっていた場合の保険
+}
 
 
 def build_driver(headless: bool = True) -> webdriver.Chrome:
@@ -89,14 +102,21 @@ def wait_for_tables(driver, timeout_total: int = 45, retries: int = 2):
             # どれかのテーブルが出るまで待機
             wait.until(
                 EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, TABLE_SELECTOR_ANY)
+                    (By.CSS_SELECTOR, ".section__table-wrap .js-lottery-temp-pc, "
+                                      ".section__table-wrap .js-lottery-temp-sp, "
+                                      ".section__table-wrap table.section__table")
                 )
             )
 
             # 中身が入るまでポーリング
             t_end = time.time() + timeout_total
             while time.time() < t_end:
-                tables = driver.find_elements(By.CSS_SELECTOR, TABLE_SELECTOR_ANY)
+                tables = driver.find_elements(
+                    By.CSS_SELECTOR,
+                    ".section__table-wrap .js-lottery-temp-pc, "
+                    ".section__table-wrap .js-lottery-temp-sp, "
+                    ".section__table-wrap table.section__table",
+                )
                 tables = [t for t in tables if t.is_displayed()] or tables
                 if not tables:
                     time.sleep(0.5)
@@ -142,7 +162,16 @@ def wait_for_tables(driver, timeout_total: int = 45, retries: int = 2):
 
 
 def parse_tables(driver):
-    tables = driver.find_elements(By.CSS_SELECTOR, TABLE_SELECTOR_ANY)
+    """
+    ページ内にある Numbers4 テーブルから、
+    1 行＝1 抽せん分の dict を作って返す。
+    """
+    tables = driver.find_elements(
+        By.CSS_SELECTOR,
+        ".section__table-wrap .js-lottery-temp-pc, "
+        ".section__table-wrap .js-lottery-temp-sp, "
+        ".section__table-wrap table.section__table",
+    )
     tables = [t for t in tables if t.is_displayed()] or tables
 
     results = []
@@ -173,6 +202,8 @@ def parse_tables(driver):
 
         # 当せん数字（4桁）
         digits = [int(d) for d in re.findall(r"\d", num_text)]
+        if len(digits) != 4:
+            continue
         main_number = str(digits)
 
         # 賞金（ストレート / ボックス / セット(ストレート) / セット(ボックス) / 販売実績額）
@@ -198,7 +229,7 @@ def parse_tables(driver):
                         val = None
             prizes.append(val)
 
-        # 5個（ストレート / ボックス / セットS / セットB / 販売実績額）揃うように埋める
+        # 5個揃うように埋める
         while len(prizes) < 5:
             prizes.append(None)
 
@@ -218,38 +249,65 @@ def parse_tables(driver):
 
 
 def load_existing(csv_path: str):
+    """
+    既存CSVを読み込み：
+    - 列名を正規化（COLUMN_ALIASES で rename）
+    - 足りない列を追加
+    - FIELDNAMES の順に並べ替え
+    """
     try:
         df = pd.read_csv(csv_path)
-        df["抽せん日"] = df["抽せん日"].astype(str)
-        existing_dates = set(df["抽せん日"].tolist())
-        fieldnames = df.columns.tolist()
-        return df, existing_dates, fieldnames
     except FileNotFoundError:
-        fieldnames = [
-            "抽せん日",
-            "本数字",
-            "回別",
-            "ストレート",
-            "ボックス",
-            "セット(ストレート)",
-            "セット(ボックス)",
-            "販売実績額",
-        ]
-        return pd.DataFrame(), set(), fieldnames
+        # ファイルが無い場合は空DFを返す
+        empty = pd.DataFrame(columns=FIELDNAMES)
+        return empty, set(), FIELDNAMES
+
+    # 列名の別名を正規化
+    df = df.rename(columns=COLUMN_ALIASES)
+
+    # 足りない列を追加
+    for col in FIELDNAMES:
+        if col not in df.columns:
+            df[col] = pd.NA
+
+    # 日付を str 化してキー集合を作る
+    df["抽せん日"] = df["抽せん日"].astype(str)
+    existing_dates = set(df["抽せん日"].tolist())
+
+    # 列順を揃えておく
+    df = df[FIELDNAMES]
+
+    return df, existing_dates, FIELDNAMES
 
 
 def append_and_sort(csv_path: str, fieldnames, new_rows):
+    """
+    new_rows を CSV に追記し、その後ファイル全体を読み直して
+    日付 + 回別 でソートして保存し直す。
+    """
     if not new_rows:
         return 0
+
+    # 余計なキーを削り、足りないキーを None で埋める
+    sanitized = []
+    for row in new_rows:
+        sanitized.append({k: row.get(k) for k in fieldnames})
 
     write_header = (not os.path.exists(csv_path)) or os.path.getsize(csv_path) == 0
     with open(csv_path, mode="a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if write_header:
             writer.writeheader()
-        writer.writerows(new_rows)
+        writer.writerows(sanitized)
 
+    # 一度全部読み直して列名を正規化＆ソート
     df = pd.read_csv(csv_path)
+    df = df.rename(columns=COLUMN_ALIASES)
+
+    for col in fieldnames:
+        if col not in df.columns:
+            df[col] = pd.NA
+
     try:
         df["抽せん日_dt"] = pd.to_datetime(df["抽せん日"], errors="coerce")
         df.sort_values(["抽せん日_dt", "回別"], inplace=True)
@@ -257,8 +315,9 @@ def append_and_sort(csv_path: str, fieldnames, new_rows):
     except Exception:
         df.sort_values(["抽せん日", "回別"], inplace=True)
 
+    df = df[fieldnames]
     df.to_csv(csv_path, index=False, encoding="utf-8")
-    return len(new_rows)
+    return len(sanitized)
 
 
 def main():
@@ -282,6 +341,8 @@ def main():
         return
 
     _, existing_dates, fieldnames = load_existing(CSV_PATH)
+
+    # 既存は「抽せん日」単位でユニークにしていたのでそれに合わせる
     new_rows = [row for row in scraped if row["抽せん日"] not in existing_dates]
 
     saved = append_and_sort(CSV_PATH, fieldnames, new_rows)
