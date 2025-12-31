@@ -3171,3 +3171,7 @@
 2001-01-12,2001,1,12,4,4,1.2168,4,4,8,9,4,25,4,9,5,6.25,2.277608394786075,8,4,9,4,4,25,4,9,5,6.25,2.277608394786075,4,True,False,False,True,False,False,False,False,True,False,False
 2001-01-12,2001,1,12,4,2,1.1777,0,4,5,9,4,18,0,9,9,4.5,3.2015621187164243,8,4,9,4,4,25,4,9,5,6.25,2.277608394786075,2,True,False,False,False,False,True,False,False,False,True,False
 2001-01-12,2001,1,12,4,2,1.1749,0,1,4,9,4,14,0,9,9,3.5,3.5,8,4,9,4,4,25,4,9,5,6.25,2.277608394786075,2,True,False,False,False,False,True,False,False,False,False,True
+2001-01-15,2001,1,15,0,0,1.1285,0,4,5,6,4,15,0,6,6,3.75,2.277608394786075,1,1,2,2,4,6,1,2,1,1.5,0.5,0,False,False,False,False,True,False,False,True,False,False,False
+2001-01-15,2001,1,15,0,4,1.212,1,1,2,2,4,6,1,2,1,1.5,0.5,1,1,2,2,4,6,1,2,1,1.5,0.5,4,True,False,False,True,False,False,False,False,True,False,False
+2001-01-15,2001,1,15,0,0,1.1775,0,4,5,9,4,18,0,9,9,4.5,3.2015621187164243,1,1,2,2,4,6,1,2,1,1.5,0.5,0,False,False,False,False,False,True,False,False,False,True,False
+2001-01-15,2001,1,15,0,1,1.1747,0,1,4,9,4,14,0,9,9,3.5,3.5,1,1,2,2,4,6,1,2,1,1.5,0.5,1,True,False,False,False,False,True,False,False,False,False,True
