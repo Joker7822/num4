@@ -14959,3 +14959,7 @@
 2013-10-30,2013,10,30,2,2,1.1737,0,4,7,9,4,20,0,9,9,5.0,3.391164991562634,9,1,7,2,4,19,1,9,8,4.75,3.344772040064913,2,True,False,False,False,False,True,False,False,True,False,False
 2013-10-30,2013,10,30,2,1,1.1734,0,5,6,9,4,20,0,9,9,5.0,3.24037034920393,9,1,7,2,4,19,1,9,8,4.75,3.344772040064913,1,True,False,False,False,False,True,False,False,False,True,False
 2013-10-30,2013,10,30,2,0,1.1698,3,4,5,6,4,18,3,6,3,4.5,1.118033988749895,9,1,7,2,4,19,1,9,8,4.75,3.344772040064913,0,False,False,False,False,False,True,False,False,False,False,True
+2013-10-31,2013,10,31,3,4,1.2102,2,5,6,9,4,22,2,9,7,5.5,2.5,2,5,6,9,4,22,2,9,7,5.5,2.5,4,True,False,True,False,False,False,False,True,False,False,False
+2013-10-31,2013,10,31,3,1,1.1737,0,4,7,9,4,20,0,9,9,5.0,3.391164991562634,2,5,6,9,4,22,2,9,7,5.5,2.5,1,True,False,False,False,False,True,False,False,True,False,False
+2013-10-31,2013,10,31,3,2,1.1698,3,4,5,6,4,18,3,6,3,4.5,1.118033988749895,2,5,6,9,4,22,2,9,7,5.5,2.5,2,True,False,False,False,False,True,False,False,False,True,False
+2013-10-31,2013,10,31,3,2,1.1696,0,2,4,5,4,11,0,5,5,2.75,1.920286436967152,2,5,6,9,4,22,2,9,7,5.5,2.5,2,True,False,False,False,False,True,False,False,False,False,True
