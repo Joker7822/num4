@@ -4331,3 +4331,7 @@
 2002-11-25,2002,11,25,0,4,1.2198,2,5,5,6,4,18,2,6,4,4.5,1.5,2,5,5,6,4,18,2,6,4,4.5,1.5,4,True,False,False,True,False,False,False,False,True,False,False
 2002-11-25,2002,11,25,0,1,1.175,0,4,5,9,4,18,0,9,9,4.5,3.2015621187164243,2,5,5,6,4,18,2,6,4,4.5,1.5,1,True,False,False,False,False,True,False,False,False,True,False
 2002-11-25,2002,11,25,0,0,1.1735,0,1,4,9,4,14,0,9,9,3.5,3.5,2,5,5,6,4,18,2,6,4,4.5,1.5,0,False,False,False,False,False,True,False,False,False,False,True
+2002-11-27,2002,11,27,2,4,1.2075,0,1,4,4,4,9,0,4,4,2.25,1.7853571071357126,1,4,4,0,4,9,0,4,4,2.25,1.7853571071357126,4,True,False,True,False,False,False,False,True,False,False,False
+2002-11-27,2002,11,27,2,2,1.175,0,4,5,9,4,18,0,9,9,4.5,3.2015621187164243,1,4,4,0,4,9,0,4,4,2.25,1.7853571071357126,2,True,False,False,False,False,True,False,False,True,False,False
+2002-11-27,2002,11,27,2,3,1.1735,0,1,4,9,4,14,0,9,9,3.5,3.5,1,4,4,0,4,9,0,4,4,2.25,1.7853571071357126,3,True,False,False,False,False,True,False,False,False,True,False
+2002-11-27,2002,11,27,2,1,1.1698,2,4,5,6,4,17,2,6,4,4.25,1.479019945774904,1,4,4,0,4,9,0,4,4,2.25,1.7853571071357126,1,True,False,False,False,False,True,False,False,False,False,True
