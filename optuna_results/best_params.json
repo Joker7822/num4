@@ -1,10 +1,9 @@
 {
-  "topk": 9,
-  "max_sim": 0.45,
+  "topk": 15,
+  "max_sim": 0.6598785099640687,
   "lambda_div": 0.6,
   "temperature": 0.35,
-  "best_value": 0.0,
+  "best_value": 3.8397242543554007,
   "study_name": "numbers4_optuna",
-  "storage": "sqlite:///optuna_results/optuna_study.db",
-  "note": "backfill missing/empty: 'Numbers4_predictions.csv'"
+  "storage": "sqlite:///optuna_results/optuna_study.db"
 }
