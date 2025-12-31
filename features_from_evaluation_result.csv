@@ -5067,3 +5067,7 @@
 2004-02-06,2004,2,6,4,4,1.2196,3,7,8,9,4,27,3,9,6,6.75,2.277608394786075,3,8,7,9,4,27,3,9,6,6.75,2.277608394786075,4,True,False,False,True,False,False,False,False,True,False,False
 2004-02-06,2004,2,6,4,1,1.1748,0,4,5,9,4,18,0,9,9,4.5,3.2015621187164243,3,8,7,9,4,27,3,9,6,6.75,2.277608394786075,1,True,False,False,False,False,True,False,False,False,True,False
 2004-02-06,2004,2,6,4,2,1.1735,2,5,7,9,4,23,2,9,7,5.75,2.5860201081971503,3,8,7,9,4,27,3,9,6,6.75,2.277608394786075,2,True,False,False,False,False,True,False,False,False,False,True
+2004-02-09,2004,2,9,0,2,1.124,1,2,4,7,4,14,1,7,6,3.5,2.29128784747792,5,1,2,2,4,10,1,5,4,2.5,1.5,2,True,False,False,False,True,False,False,True,False,False,False
+2004-02-09,2004,2,9,0,1,1.1748,0,4,5,9,4,18,0,9,9,4.5,3.2015621187164243,5,1,2,2,4,10,1,5,4,2.5,1.5,1,True,False,False,False,False,True,False,False,True,False,False
+2004-02-09,2004,2,9,0,2,1.1735,2,5,7,9,4,23,2,9,7,5.75,2.5860201081971503,5,1,2,2,4,10,1,5,4,2.5,1.5,2,True,False,False,False,False,True,False,False,False,True,False
+2004-02-09,2004,2,9,0,0,1.1724,0,3,4,7,4,14,0,7,7,3.5,2.5,5,1,2,2,4,10,1,5,4,2.5,1.5,0,False,False,False,False,False,True,False,False,False,False,True
