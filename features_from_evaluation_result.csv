@@ -10131,3 +10131,7 @@
 2009-03-02,2009,3,2,0,4,1.221,0,5,8,9,4,22,0,9,9,5.5,3.5,9,0,8,5,4,22,0,9,9,5.5,3.5,4,True,False,False,True,False,False,False,False,True,False,False
 2009-03-02,2009,3,2,0,2,1.1711,1,3,8,9,4,21,1,9,8,5.25,3.344772040064913,9,0,8,5,4,22,0,9,9,5.5,3.5,2,True,False,False,False,False,True,False,False,False,True,False
 2009-03-02,2009,3,2,0,1,1.1707,0,2,4,6,4,12,0,6,6,3.0,2.23606797749979,9,0,8,5,4,22,0,9,9,5.5,3.5,1,True,False,False,False,False,True,False,False,False,False,True
+2009-03-03,2009,3,3,1,4,1.2129,0,5,6,9,4,20,0,9,9,5.0,3.24037034920393,9,0,6,5,4,20,0,9,9,5.0,3.24037034920393,4,True,False,True,False,False,False,False,True,False,False,False
+2009-03-03,2009,3,3,1,1,1.1711,1,3,8,9,4,21,1,9,8,5.25,3.344772040064913,9,0,6,5,4,20,0,9,9,5.0,3.24037034920393,1,True,False,False,False,False,True,False,False,True,False,False
+2009-03-03,2009,3,3,1,2,1.1707,0,2,4,6,4,12,0,6,6,3.0,2.23606797749979,9,0,6,5,4,20,0,9,9,5.0,3.24037034920393,2,True,False,False,False,False,True,False,False,False,True,False
+2009-03-03,2009,3,3,1,2,1.1697,3,4,5,6,4,18,3,6,3,4.5,1.118033988749895,9,0,6,5,4,20,0,9,9,5.0,3.24037034920393,2,True,False,False,False,False,True,False,False,False,False,True
