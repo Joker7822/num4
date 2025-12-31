@@ -10351,3 +10351,7 @@
 2009-05-18,2009,5,18,0,4,1.2222,6,6,8,9,4,29,6,9,3,7.25,1.299038105676658,8,6,9,6,4,29,6,9,3,7.25,1.299038105676658,4,True,False,False,True,False,False,False,False,True,False,False
 2009-05-18,2009,5,18,0,2,1.1739,0,5,6,9,4,20,0,9,9,5.0,3.24037034920393,8,6,9,6,4,29,6,9,3,7.25,1.299038105676658,2,True,False,False,False,False,True,False,False,False,True,False
 2009-05-18,2009,5,18,0,3,1.1733,1,6,8,9,4,24,1,9,8,6.0,3.082207001484488,8,6,9,6,4,29,6,9,3,7.25,1.299038105676658,3,True,False,False,False,False,True,False,False,False,False,True
+2009-05-19,2009,5,19,1,2,1.1303,0,2,4,5,4,11,0,5,5,2.75,1.920286436967152,4,3,0,3,4,10,0,4,4,2.5,1.5,2,True,False,False,False,True,False,False,True,False,False,False
+2009-05-19,2009,5,19,1,4,1.217,0,3,3,4,4,10,0,4,4,2.5,1.5,4,3,0,3,4,10,0,4,4,2.5,1.5,4,True,False,False,True,False,False,False,False,True,False,False
+2009-05-19,2009,5,19,1,1,1.1739,0,5,6,9,4,20,0,9,9,5.0,3.24037034920393,4,3,0,3,4,10,0,4,4,2.5,1.5,1,True,False,False,False,False,True,False,False,False,True,False
+2009-05-19,2009,5,19,1,0,1.1734,1,6,8,9,4,24,1,9,8,6.0,3.082207001484488,4,3,0,3,4,10,0,4,4,2.5,1.5,0,False,False,False,False,False,True,False,False,False,False,True
