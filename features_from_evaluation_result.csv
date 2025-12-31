@@ -3475,3 +3475,7 @@
 2001-07-09,2001,7,9,0,4,1.212,3,3,4,4,4,14,3,4,1,3.5,0.5,4,4,3,3,4,14,3,4,1,3.5,0.5,4,True,False,False,True,False,False,False,False,True,False,False
 2001-07-09,2001,7,9,0,1,1.1738,0,1,4,9,4,14,0,9,9,3.5,3.5,4,4,3,3,4,14,3,4,1,3.5,0.5,1,True,False,False,False,False,True,False,False,False,True,False
 2001-07-09,2001,7,9,0,0,1.1721,0,5,6,8,4,19,0,8,8,4.75,2.947456530637899,4,4,3,3,4,14,3,4,1,3.5,0.5,0,False,False,False,False,False,True,False,False,False,False,True
+2001-07-11,2001,7,11,2,4,1.2126,0,2,3,5,4,10,0,5,5,2.5,1.8027756377319946,2,5,3,0,4,10,0,5,5,2.5,1.8027756377319946,4,True,False,True,False,False,False,False,True,False,False,False
+2001-07-11,2001,7,11,2,1,1.1739,0,1,4,9,4,14,0,9,9,3.5,3.5,2,5,3,0,4,10,0,5,5,2.5,1.8027756377319946,1,True,False,False,False,False,True,False,False,True,False,False
+2001-07-11,2001,7,11,2,2,1.1721,0,5,6,8,4,19,0,8,8,4.75,2.947456530637899,2,5,3,0,4,10,0,5,5,2.5,1.8027756377319946,2,True,False,False,False,False,True,False,False,False,True,False
+2001-07-11,2001,7,11,2,1,1.1707,1,3,8,9,4,21,1,9,8,5.25,3.344772040064913,2,5,3,0,4,10,0,5,5,2.5,1.8027756377319946,1,True,False,False,False,False,True,False,False,False,False,True
