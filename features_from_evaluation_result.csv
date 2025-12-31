@@ -13591,3 +13591,7 @@
 2012-07-03,2012,7,3,1,4,1.2211,0,5,8,9,4,22,0,9,9,5.5,3.5,0,5,9,8,4,22,0,9,9,5.5,3.5,4,True,False,False,True,False,False,False,False,True,False,False
 2012-07-03,2012,7,3,1,2,1.1735,0,4,7,9,4,20,0,9,9,5.0,3.391164991562634,0,5,9,8,4,22,0,9,9,5.5,3.5,2,True,False,False,False,False,True,False,False,False,True,False
 2012-07-03,2012,7,3,1,1,1.1698,3,4,5,6,4,18,3,6,3,4.5,1.118033988749895,0,5,9,8,4,22,0,9,9,5.5,3.5,1,True,False,False,False,False,True,False,False,False,False,True
+2012-07-04,2012,7,4,2,2,1.1316,3,4,6,7,4,20,3,7,4,5.0,1.5811388300841898,5,7,4,4,4,20,4,7,3,5.0,1.224744871391589,2,True,False,False,False,True,False,False,True,False,False,False
+2012-07-04,2012,7,4,2,4,1.2181,4,4,5,7,4,20,4,7,3,5.0,1.224744871391589,5,7,4,4,4,20,4,7,3,5.0,1.224744871391589,4,True,False,False,True,False,False,False,False,True,False,False
+2012-07-04,2012,7,4,2,0,1.1736,0,1,8,9,4,18,0,9,9,4.5,4.031128874149275,5,7,4,4,4,20,4,7,3,5.0,1.224744871391589,0,False,False,False,False,False,True,False,False,False,True,False
+2012-07-04,2012,7,4,2,2,1.1698,3,4,5,6,4,18,3,6,3,4.5,1.118033988749895,5,7,4,4,4,20,4,7,3,5.0,1.224744871391589,2,True,False,False,False,False,True,False,False,False,False,True
