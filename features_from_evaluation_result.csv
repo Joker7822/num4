@@ -5539,3 +5539,8 @@
 2003-01-27,2003,1,27,0,1,0.9427,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2003-01-27,2003,1,27,0,3,0.9419,4,2,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
 2003-01-27,2003,1,27,0,3,0.9419,9,4,2,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+2003-01-29,2003,1,29,2,1,0.9379,8,3,1,5,4,17,1,8,7,4.25,2.5860201081971503,False,True,False,False,False,True,False,False,False,False
+2003-01-29,2003,1,29,2,1,0.9427,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2003-01-29,2003,1,29,2,1,0.9427,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2003-01-29,2003,1,29,2,0,0.9419,2,0,4,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2003-01-29,2003,1,29,2,0,0.9419,4,9,2,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
