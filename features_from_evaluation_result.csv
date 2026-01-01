@@ -12204,3 +12204,8 @@
 2008-10-20,2008,10,20,0,1,0.9413,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2008-10-20,2008,10,20,0,1,0.9412,9,6,1,7,4,23,1,9,8,5.75,2.947456530637899,False,True,False,False,False,False,False,False,True,False
 2008-10-20,2008,10,20,0,1,0.9412,6,9,7,1,4,23,1,9,8,5.75,2.947456530637899,False,True,False,False,False,False,False,False,False,True
+2008-10-21,2008,10,21,1,2,0.9393,1,8,2,6,4,17,1,8,7,4.25,2.8613807855648994,False,True,False,False,False,True,False,False,False,False
+2008-10-21,2008,10,21,1,1,0.9414,9,8,7,6,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,True,False,False,False
+2008-10-21,2008,10,21,1,1,0.9414,6,8,9,7,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,False,True,False,False
+2008-10-21,2008,10,21,1,0,0.9413,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2008-10-21,2008,10,21,1,0,0.9411,9,3,0,7,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,False,False,True
