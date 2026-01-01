@@ -4554,3 +4554,8 @@
 2001-10-15,2001,10,15,0,2,0.9431,6,0,2,9,4,17,0,9,9,4.25,3.491060010942235,False,True,False,False,False,False,False,True,False,False
 2001-10-15,2001,10,15,0,1,0.9426,1,9,6,0,4,16,0,9,9,4.0,3.6742346141747673,False,True,False,False,False,False,False,False,True,False
 2001-10-15,2001,10,15,0,1,0.9426,0,9,6,1,4,16,0,9,9,4.0,3.6742346141747673,False,True,False,False,False,False,False,False,False,True
+2001-10-17,2001,10,17,2,1,0.9386,5,7,8,3,4,23,3,8,5,5.75,1.920286436967152,False,True,False,False,False,True,False,False,False,False
+2001-10-17,2001,10,17,2,2,0.9436,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2001-10-17,2001,10,17,2,1,0.9433,6,0,9,7,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,True,False,False
+2001-10-17,2001,10,17,2,1,0.9433,6,7,9,0,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,False,True,False
+2001-10-17,2001,10,17,2,2,0.9429,7,9,2,0,4,18,0,9,9,4.5,3.640054944640259,False,True,False,False,False,False,False,False,False,True
