@@ -13649,3 +13649,8 @@
 2009-12-02,2009,12,2,2,2,0.9412,9,5,8,6,4,28,5,9,4,7.0,1.5811388300841898,False,True,False,False,False,False,False,True,False,False
 2009-12-02,2009,12,2,2,1,0.941,8,6,0,7,4,21,0,8,8,5.25,3.112474899497183,False,True,False,False,False,False,False,False,True,False
 2009-12-02,2009,12,2,2,1,0.941,7,6,8,0,4,21,0,8,8,5.25,3.112474899497183,False,True,False,False,False,False,False,False,False,True
+2009-12-03,2009,12,3,3,2,0.94,0,1,8,5,4,14,0,8,8,3.5,3.2015621187164243,False,True,False,False,False,True,False,False,False,False
+2009-12-03,2009,12,3,3,0,0.9419,7,0,9,6,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,True,False,False,False
+2009-12-03,2009,12,3,3,0,0.9419,6,7,9,0,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,True,False,False
+2009-12-03,2009,12,3,3,0,0.9419,7,6,0,9,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,False,True,False
+2009-12-03,2009,12,3,3,0,0.9419,9,7,0,6,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,False,False,True
