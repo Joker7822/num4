@@ -6894,3 +6894,8 @@
 2004-09-08,2004,9,8,2,2,0.9415,2,0,4,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,True,False,False
 2004-09-08,2004,9,8,2,0,0.9413,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 2004-09-08,2004,9,8,2,2,0.9409,2,7,9,3,4,21,2,9,7,5.25,2.8613807855648994,False,True,False,False,False,False,False,False,False,True
+2004-09-09,2004,9,9,3,1,0.9389,8,5,2,3,4,18,2,8,6,4.5,2.29128784747792,False,True,False,False,False,True,False,False,False,False
+2004-09-09,2004,9,9,3,0,0.9431,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2004-09-09,2004,9,9,3,0,0.9431,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2004-09-09,2004,9,9,3,2,0.9422,9,0,7,2,4,18,0,9,9,4.5,3.640054944640259,False,True,False,False,False,False,False,False,True,False
+2004-09-09,2004,9,9,3,0,0.9413,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
