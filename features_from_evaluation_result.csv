@@ -5724,3 +5724,8 @@
 2003-04-23,2003,4,23,2,3,0.9428,5,7,0,9,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,True,False,False
 2003-04-23,2003,4,23,2,2,0.9419,2,9,0,4,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
 2003-04-23,2003,4,23,2,2,0.9419,2,4,9,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+2003-04-25,2003,4,25,4,1,0.9391,4,3,2,5,4,14,2,5,3,3.5,1.118033988749895,False,True,False,False,False,True,False,False,False,False
+2003-04-25,2003,4,25,4,0,0.9432,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2003-04-25,2003,4,25,4,0,0.9432,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2003-04-25,2003,4,25,4,1,0.9419,4,2,9,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2003-04-25,2003,4,25,4,0,0.9416,6,5,3,9,4,23,3,9,6,5.75,2.165063509461097,False,True,False,False,False,False,False,False,False,True
