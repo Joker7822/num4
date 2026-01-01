@@ -20089,3 +20089,8 @@
 2014-11-28,2014,11,28,4,1,0.9409,0,4,3,9,4,16,0,9,9,4.0,3.24037034920393,False,True,False,False,False,False,False,True,False,False
 2014-11-28,2014,11,28,4,1,0.9409,9,3,4,0,4,16,0,9,9,4.0,3.24037034920393,False,True,False,False,False,False,False,False,True,False
 2014-11-28,2014,11,28,4,2,0.9408,9,4,6,0,4,19,0,9,9,4.75,3.2691742076555053,False,True,False,False,False,False,False,False,False,True
+2014-12-01,2014,12,1,0,3,0.939,4,2,5,8,4,19,2,8,6,4.75,2.165063509461097,False,True,False,False,False,True,False,False,False,False
+2014-12-01,2014,12,1,0,0,0.9407,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2014-12-01,2014,12,1,0,3,0.9405,6,5,4,9,4,24,4,9,5,6.0,1.8708286933869707,False,True,False,False,False,False,False,True,False,False
+2014-12-01,2014,12,1,0,0,0.9405,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+2014-12-01,2014,12,1,0,0,0.9405,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
