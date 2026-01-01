@@ -7569,3 +7569,8 @@
 2005-03-18,2005,3,18,4,3,0.9415,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
 2005-03-18,2005,3,18,4,3,0.9415,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 2005-03-18,2005,3,18,4,2,0.9414,2,0,0,1,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,False,False,True
+2005-03-21,2005,3,21,0,0,0.9403,4,5,2,9,4,20,2,9,7,5.0,2.5495097567963922,False,True,False,False,False,True,False,False,False,False
+2005-03-21,2005,3,21,0,3,0.9428,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2005-03-21,2005,3,21,0,3,0.9428,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2005-03-21,2005,3,21,0,3,0.9415,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+2005-03-21,2005,3,21,0,3,0.9415,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
