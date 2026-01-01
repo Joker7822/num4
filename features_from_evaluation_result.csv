@@ -21007,3 +21007,7 @@
 2019-09-11,2019,9,11,2,4,1.2184,4,5,6,7,4,22,4,7,3,5.5,1.118033988749895,4,7,6,5,4,22,4,7,3,5.5,1.118033988749895,4,True,False,False,True,False,False,False,False,True,False,False
 2019-09-11,2019,9,11,2,2,1.1735,5,7,8,9,4,29,5,9,4,7.25,1.479019945774904,4,7,6,5,4,22,4,7,3,5.5,1.118033988749895,2,True,False,False,False,False,True,False,False,False,True,False
 2019-09-11,2019,9,11,2,2,1.1726,0,4,7,9,4,20,0,9,9,5.0,3.391164991562634,4,7,6,5,4,22,4,7,3,5.5,1.118033988749895,2,True,False,False,False,False,True,False,False,False,False,True
+2019-09-12,2019,9,12,3,1,1.1283,4,5,8,9,4,26,4,9,5,6.5,2.0615528128088303,0,4,1,1,4,6,0,4,4,1.5,1.5,1,True,False,False,False,True,False,False,True,False,False,False
+2019-09-12,2019,9,12,3,4,1.2185,0,1,1,4,4,6,0,4,4,1.5,1.5,0,4,1,1,4,6,0,4,4,1.5,1.5,4,True,False,False,True,False,False,False,False,True,False,False
+2019-09-12,2019,9,12,3,0,1.1735,5,7,8,9,4,29,5,9,4,7.25,1.479019945774904,0,4,1,1,4,6,0,4,4,1.5,1.5,0,False,False,False,False,False,True,False,False,False,True,False
+2019-09-12,2019,9,12,3,2,1.1726,0,4,7,9,4,20,0,9,9,5.0,3.391164991562634,0,4,1,1,4,6,0,4,4,1.5,1.5,2,True,False,False,False,False,True,False,False,False,False,True
