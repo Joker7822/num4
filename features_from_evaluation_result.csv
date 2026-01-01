@@ -6974,3 +6974,8 @@
 2004-09-30,2004,9,30,3,1,0.9424,9,3,7,0,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,True,False,False
 2004-09-30,2004,9,30,3,1,0.9424,9,0,7,3,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,False,True,False
 2004-09-30,2004,9,30,3,1,0.9424,9,3,0,7,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,False,False,True
+2004-10-01,2004,10,1,4,2,0.9383,8,1,7,4,4,20,1,8,7,5.0,2.7386127875258306,False,True,False,False,False,True,False,False,False,False
+2004-10-01,2004,10,1,4,0,0.9431,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2004-10-01,2004,10,1,4,0,0.9431,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2004-10-01,2004,10,1,4,0,0.9425,9,7,0,5,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,True,False
+2004-10-01,2004,10,1,4,0,0.9418,1,0,3,0,4,4,0,3,3,1.0,1.224744871391589,True,False,False,False,False,False,False,False,False,True
