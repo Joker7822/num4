@@ -10339,3 +10339,8 @@
 2007-05-10,2007,5,10,3,3,0.9416,5,0,9,6,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,False,True,False,False
 2007-05-10,2007,5,10,3,3,0.9416,0,6,5,9,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,False,False,True,False
 2007-05-10,2007,5,10,3,3,0.9416,5,9,6,0,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,False,False,False,True
+2007-05-11,2007,5,11,4,1,0.9396,6,8,3,7,4,24,3,8,5,6.0,1.8708286933869707,False,True,False,False,False,True,False,False,False,False
+2007-05-11,2007,5,11,4,2,0.9424,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2007-05-11,2007,5,11,4,2,0.9424,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2007-05-11,2007,5,11,4,2,0.9415,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+2007-05-11,2007,5,11,4,3,0.9413,7,1,0,6,4,14,0,7,7,3.5,3.0413812651491097,False,True,False,False,False,False,False,False,False,True
