@@ -1534,3 +1534,8 @@
 1997-11-19,1997,11,19,2,2,0.9444,1,0,2,0,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,True,False,False
 1997-11-19,1997,11,19,2,2,0.9444,0,1,2,0,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,False,True,False
 1997-11-19,1997,11,19,2,2,0.9444,1,1,0,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
+1997-11-21,1997,11,21,4,2,0.9403,5,8,6,1,4,20,1,8,7,5.0,2.5495097567963922,False,True,False,False,False,True,False,False,False,False
+1997-11-21,1997,11,21,4,1,0.9465,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+1997-11-21,1997,11,21,4,1,0.9444,0,2,1,0,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,True,False,False
+1997-11-21,1997,11,21,4,1,0.9444,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+1997-11-21,1997,11,21,4,1,0.9429,2,4,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
