@@ -9839,3 +9839,8 @@
 2006-12-18,2006,12,18,0,0,0.9428,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2006-12-18,2006,12,18,0,0,0.9428,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
 2006-12-18,2006,12,18,0,0,0.9418,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
+2006-12-19,2006,12,19,1,1,0.9403,1,6,8,0,4,15,0,8,8,3.75,3.344772040064913,False,True,False,False,False,True,False,False,False,False
+2006-12-19,2006,12,19,1,1,0.9428,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2006-12-19,2006,12,19,1,1,0.9418,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
+2006-12-19,2006,12,19,1,2,0.9415,1,7,5,0,4,13,0,7,7,3.25,2.8613807855648994,False,True,False,False,False,False,False,False,True,False
+2006-12-19,2006,12,19,1,2,0.9413,0,7,1,6,4,14,0,7,7,3.5,3.0413812651491097,False,True,False,False,False,False,False,False,False,True
