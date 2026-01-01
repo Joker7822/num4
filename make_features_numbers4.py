@@ -7,6 +7,9 @@ import re
 INPUT_PATH = "evaluation_result.csv"
 OUTPUT_PATH = "features_from_evaluation_result.csv"
 
+# true_*（当選数字由来の特徴量）を含めるか。未来予測の学習ではリークになるので通常は False。
+INCLUDE_TRUE_FEATURES = False
+
 def parse_number_list(s):
     """文字列で保存された [2, 7, 9] のようなリストを Python の list[int] に変換する"""
     if pd.isna(s):
@@ -69,22 +72,28 @@ def main(input_path=INPUT_PATH, output_path=OUTPUT_PATH):
     df["day"] = df["抽せん日"].dt.day
     df["dayofweek"] = df["抽せん日"].dt.dayofweek  # 月曜=0
 
-    # 予測番号 / 当選本数字 の展開
+    # 予測番号 の展開（pred_*）
     pred_features, pred_nums = expand_number_features(df["予測番号"], "pred")
-    true_features, true_nums = expand_number_features(df["当選本数字"], "true")
 
-    # 一致数を自前計算した特徴量（検算＋特徴）
-    def count_match(p, t):
-        # Numbers4でも重複を正しく数える（multiset一致数）
-        from collections import Counter
-        cp, ct = Counter(p), Counter(t)
-        return sum(min(cp[d], ct[d]) for d in (cp.keys() | ct.keys()))
+    # 当選本数字（true_*）は、未来予測の学習に使うとリークになるのでデフォルトでは除外します
+    if INCLUDE_TRUE_FEATURES:
+        true_features, true_nums = expand_number_features(df["当選本数字"], "true")
 
-    match_count = [count_match(p, t) for p, t in zip(pred_nums, true_nums)]
-    match_df = pd.DataFrame({
-        "match_count_calc": match_count,
-        "hit_flag": np.array(match_count) > 0,
-    })
+        # 一致数を自前計算した特徴量（検算＋特徴）
+        def count_match(p, t):
+            # Numbers4でも重複を正しく数える（multiset一致数）
+            from collections import Counter
+            cp, ct = Counter(p), Counter(t)
+            return sum(min(cp[d], ct[d]) for d in (cp.keys() | ct.keys()))
+
+        match_count = [count_match(p, t) for p, t in zip(pred_nums, true_nums)]
+        match_df = pd.DataFrame({
+            "match_count_calc": match_count,
+            "hit_flag": np.array(match_count) > 0,
+        })
+    else:
+        true_features = pd.DataFrame(index=df.index)
+        match_df = pd.DataFrame(index=df.index)
 
     # 元の数値列も特徴として利用
     base_numeric = df[["一致数", "信頼度"]].copy()

@@ -1557,9 +1557,19 @@ def evaluate_and_summarize_predictions(
     match_counter = Counter()
     all_hits = []
     grade_list = ["はずれ", "ボックス", "ストレート"]
+
+    # 予測列（予測1〜N）を自動検出。見つからなければ5本を想定。
+    pred_idx_list = []
+    for c in pred_df.columns:
+        if isinstance(c, str) and c.startswith("予測"):
+            m = re.search(r"(\d+)$", c)
+            if m:
+                pred_idx_list.append(int(m.group(1)))
+    max_pred_idx = max(pred_idx_list) if pred_idx_list else 5
+
     results_by_prediction = {
         i: {grade: 0 for grade in grade_list} | {"details": []}
-        for i in range(1, 5)
+        for i in range(1, max_pred_idx + 1)
     }
 
     for _, row in pred_df.iterrows():
@@ -1569,7 +1579,7 @@ def evaluate_and_summarize_predictions(
             continue
         actual_numbers = parse_number_string(actual_row.iloc[0]["本数字"])
 
-        for i in range(1, 5):
+        for i in range(1, max_pred_idx + 1):
             pred_key = f"予測{i}"
             conf_key = f"信頼度{i}"
             source_key = f"出力元{i}"
@@ -2187,15 +2197,26 @@ def verify_predictions(predictions, historical_data, top_k=5, grade_probs=None):
                 continue
 
             arr = np.array(raw_numbers if isinstance(raw_numbers, (list, np.ndarray)) else raw_numbers[0])
-            if arr.ndim == 0 or arr.size < 3:
+            if arr.ndim == 0:
+                continue
+            arr = np.array(arr).flatten()
+            if arr.size < NUM_DIGITS:
                 continue
 
-            numbers = np.sort(arr[:NUM_DIGITS])
-            if check_number_constraints(numbers) and calculate_pattern_score(numbers.tolist()) >= 2:
-                avg_cycle = np.mean([cycle_scores.get(n, 999) for n in numbers]) if len(numbers) > 0 else 999
+            # 重要: ストレート判定のため順序を保持（ここでソートしない）
+            numbers = [int(x) for x in arr[:NUM_DIGITS].tolist()]
+
+            # スコア計算は順序に依存しないため、必要なら別でソートコピーを使う
+            numbers_for_score = sorted(numbers)
+
+            if check_number_constraints(numbers) and calculate_pattern_score(numbers_for_score) >= 2:
+                avg_cycle = np.mean([cycle_scores.get(int(n), 999) for n in numbers]) if len(numbers) > 0 else 999
                 cycle_score = max(0, 1 - (avg_cycle / 50))
-                final_conf = round(0.7 * conf + 0.3 * cycle_score, 4)
-                valid_predictions.append((numbers.tolist(), final_conf, origin))
+                final_conf = (0.7 * float(conf) + 0.3 * float(cycle_score))
+                # 信頼度は [0,1] にクランプ
+                final_conf = float(max(0.0, min(1.0, final_conf)))
+                final_conf = round(final_conf, 4)
+                valid_predictions.append((numbers, final_conf, origin))
         except Exception as e:
             logger.warning(f"予測フィルタ中にエラー: {e}")
             continue
@@ -2333,7 +2354,10 @@ def apply_confidence_adjustment(predictions, cycle_score):
 
         avg_gap = np.mean([cycle_score.get(int(d), 999) for d in numbers])
         recency_score = max(0, 1 - avg_gap / 50)
-        new_conf = round(conf * (1 + recency_score * 0.5), 3)
+        new_conf = conf * (1 + recency_score * 0.5)
+        # 信頼度は [0,1] にクランプ
+        new_conf = float(max(0.0, min(1.0, new_conf)))
+        new_conf = round(new_conf, 3)
         adjusted.append((numbers, new_conf, origin))
     return adjusted
 
@@ -2348,20 +2372,59 @@ def create_meta_training_data(evaluation_df, feature_df):
 
     target = merged["本数字一致数"].values if "本数字一致数" in merged.columns else merged["一致数"].values
     features = merged.drop(columns=["抽せん日", "予測番号", "当選本数字", "当選ボーナス", "等級"], errors="ignore")
+
+    # 重要: 当選数字（true_*）や当選後に計算される列は、未来予測の学習に使うとリークになるため除外
+    leak_cols = [c for c in features.columns if (
+        (isinstance(c, str) and c.startswith("true_")) or
+        c in ("match_count_calc", "hit_flag", "一致数_label")
+    )]
+    if leak_cols:
+        features = features.drop(columns=leak_cols, errors="ignore")
     features = features.select_dtypes(include=[np.number]).fillna(0)
 
     feature_names = list(features.columns)
     return features.values, target, feature_names
 
 def train_meta_model(X, confidence_scores, match_scores, source_labels):
+    """メタ回帰モデル（X が DataFrame / ndarray のどちらでも動くようにする）。"""
     from sklearn.ensemble import GradientBoostingRegressor
     import joblib
+
+    # X を DataFrame に正規化
+    if not isinstance(X, pd.DataFrame):
+        X = pd.DataFrame(X)
+    X = X.copy()
+
     X["出力元"] = source_labels
     X["信頼度"] = confidence_scores
-    X["構造スコア"] = X.apply(lambda row: score_real_structure_similarity(row["numbers"]), axis=1)
+
+    # 構造スコア: pred_digit_1..4 があればそれを使う（無ければ 0）
+    pred_cols = [c for c in X.columns if isinstance(c, str) and c.startswith("pred_digit_")]
+    if pred_cols:
+        def _col_idx(c: str) -> int:
+            m = re.search(r"(\d+)$", c)
+            return int(m.group(1)) if m else 999
+
+        pred_cols = sorted(pred_cols, key=_col_idx)
+
+        def _row_numbers(row):
+            nums = []
+            for c in pred_cols[:NUM_DIGITS]:
+                try:
+                    nums.append(int(row[c]))
+                except Exception:
+                    nums.append(0)
+            return nums
+
+        X["構造スコア"] = X.apply(lambda row: score_real_structure_similarity(_row_numbers(row)), axis=1)
+    else:
+        X["構造スコア"] = 0.0
+
     y = match_scores
+    X_num = X.select_dtypes(include=[np.number]).fillna(0)
+
     model = GradientBoostingRegressor()
-    model.fit(X, y)
+    model.fit(X_num, y)
     joblib.dump(model, "meta_model.pkl")
     return model
 
@@ -2537,7 +2600,7 @@ def generate_progress_dashboard_text(eval_file="evaluation_result.csv", output_t
 
         lines.append("\n【📌 予測番号別：収益と目標達成率】")
         if "予測番号インデックス" in df.columns:
-            for i in range(1, 5):
+            for i in range(1, max_pred_idx + 1):
                 key = f"予測{i}"
                 sub_df = df[df["予測番号インデックス"] == key].copy()
                 sub_df["集計単位"] = sub_df["抽せん日"].apply(lambda d: str(d.year) if d.year <= 2020 else str(d.to_period("M")))
@@ -2702,9 +2765,7 @@ def bulk_predict_all_past_draws():
                 all_candidates.append((list(nums), 0.95, "Self"))
             logger.info(f"自己予測 {len(self_preds[:5])} 件を候補に追加")
 
-        all_candidates = force_include_exact_match(all_candidates, actual_numbers)
         all_candidates = randomly_shuffle_predictions(all_candidates)
-        all_candidates = force_one_straight(all_candidates, [actual_numbers])
         all_candidates = enforce_grade_structure(all_candidates)
         all_candidates = add_random_diversity(all_candidates)
 
