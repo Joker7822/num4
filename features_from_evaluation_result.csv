@@ -19239,3 +19239,8 @@
 2014-04-04,2014,4,4,4,2,0.9407,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2014-04-04,2014,4,4,4,2,0.9404,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 2014-04-04,2014,4,4,4,2,0.9404,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
+2014-04-07,2014,4,7,0,1,0.9399,6,3,9,2,4,20,2,9,7,5.0,2.7386127875258306,False,True,False,False,False,True,False,False,False,False
+2014-04-07,2014,4,7,0,1,0.941,0,6,1,9,4,16,0,9,9,4.0,3.6742346141747673,False,True,False,False,False,False,True,False,False,False
+2014-04-07,2014,4,7,0,1,0.9408,7,6,9,3,4,25,3,9,6,6.25,2.165063509461097,False,True,False,False,False,False,False,True,False,False
+2014-04-07,2014,4,7,0,2,0.9408,7,5,4,9,4,25,4,9,5,6.25,1.920286436967152,False,True,False,False,False,False,False,False,True,False
+2014-04-07,2014,4,7,0,2,0.9408,4,7,5,9,4,25,4,9,5,6.25,1.920286436967152,False,True,False,False,False,False,False,False,False,True
