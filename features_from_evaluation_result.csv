@@ -3164,3 +3164,8 @@
 1999-12-27,1999,12,27,0,2,0.9431,7,9,0,6,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,True,False,False
 1999-12-27,1999,12,27,0,2,0.9431,7,6,0,9,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,False,True,False
 1999-12-27,1999,12,27,0,1,0.9427,4,9,0,6,4,19,0,9,9,4.75,3.2691742076555053,False,True,False,False,False,False,False,False,False,True
+1999-12-29,1999,12,29,2,1,0.7316,9,8,5,2,4,24,2,9,7,6.0,2.7386127875258306,False,False,False,False,True,True,False,False,False,False
+1999-12-29,1999,12,29,2,1,0.9443,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+1999-12-29,1999,12,29,2,1,0.9443,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+1999-12-29,1999,12,29,2,1,0.9443,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+1999-12-29,1999,12,29,2,2,0.9424,0,4,2,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
