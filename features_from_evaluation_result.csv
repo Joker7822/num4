@@ -13034,3 +13034,8 @@
 2009-06-12,2009,6,12,4,1,0.9409,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2009-06-12,2009,6,12,4,2,0.9407,5,0,8,6,4,19,0,8,8,4.75,2.947456530637899,False,True,False,False,False,False,False,False,True,False
 2009-06-12,2009,6,12,4,0,0.9404,9,8,7,2,4,26,2,9,7,6.5,2.692582403567252,False,True,False,False,False,False,False,False,False,True
+2009-06-15,2009,6,15,0,2,0.9388,3,2,7,5,4,17,2,7,5,4.25,1.920286436967152,False,True,False,False,False,True,False,False,False,False
+2009-06-15,2009,6,15,0,1,0.9417,6,8,9,7,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,True,False,False,False
+2009-06-15,2009,6,15,0,1,0.9417,7,9,8,6,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,False,True,False,False
+2009-06-15,2009,6,15,0,1,0.9417,7,6,9,8,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,False,False,True,False
+2009-06-15,2009,6,15,0,1,0.9417,6,7,9,8,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,False,False,False,True
