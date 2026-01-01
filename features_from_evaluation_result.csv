@@ -10179,3 +10179,8 @@
 2007-03-27,2007,3,27,1,1,0.9412,5,6,9,7,4,27,5,9,4,6.75,1.479019945774904,False,True,False,False,False,False,False,True,False,False
 2007-03-27,2007,3,27,1,0,0.9409,0,1,2,9,4,12,0,9,9,3.0,3.5355339059327378,False,True,False,False,False,False,False,False,True,False
 2007-03-27,2007,3,27,1,0,0.9408,1,1,1,0,4,3,0,1,1,0.75,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
+2007-03-28,2007,3,28,2,1,0.9403,3,9,1,6,4,19,1,9,8,4.75,3.031088913245535,False,True,False,False,False,True,False,False,False,False
+2007-03-28,2007,3,28,2,0,0.9425,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2007-03-28,2007,3,28,2,0,0.9425,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2007-03-28,2007,3,28,2,0,0.9425,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2007-03-28,2007,3,28,2,0,0.9417,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
