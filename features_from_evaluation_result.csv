@@ -4444,3 +4444,8 @@
 2001-08-24,2001,8,24,4,1,0.9436,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2001-08-24,2001,8,24,4,2,0.9431,9,0,6,2,4,17,0,9,9,4.25,3.491060010942235,False,True,False,False,False,False,False,False,True,False
 2001-08-24,2001,8,24,4,1,0.9417,5,6,2,9,4,22,2,9,7,5.5,2.5,False,True,False,False,False,False,False,False,False,True
+2001-08-27,2001,8,27,0,2,0.9416,7,2,9,5,4,23,2,9,7,5.75,2.5860201081971503,False,True,False,False,False,True,False,False,False,False
+2001-08-27,2001,8,27,0,1,0.9437,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2001-08-27,2001,8,27,0,2,0.9423,2,4,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,True,False,False
+2001-08-27,2001,8,27,0,2,0.9416,2,9,5,7,4,23,2,9,7,5.75,2.5860201081971503,False,True,False,False,False,False,False,False,True,False
+2001-08-27,2001,8,27,0,2,0.9416,5,7,2,9,4,23,2,9,7,5.75,2.5860201081971503,False,True,False,False,False,False,False,False,False,True
