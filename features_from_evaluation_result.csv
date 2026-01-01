@@ -5734,3 +5734,8 @@
 2003-04-28,2003,4,28,0,2,0.9429,3,9,6,0,4,18,0,9,9,4.5,3.3541019662496847,False,True,False,False,False,False,False,True,False,False
 2003-04-28,2003,4,28,0,2,0.9429,9,0,6,3,4,18,0,9,9,4.5,3.3541019662496847,False,True,False,False,False,False,False,False,True,False
 2003-04-28,2003,4,28,0,2,0.9429,6,0,3,9,4,18,0,9,9,4.5,3.3541019662496847,False,True,False,False,False,False,False,False,False,True
+2003-04-30,2003,4,30,2,1,0.9392,4,7,2,5,4,18,2,7,5,4.5,1.8027756377319946,False,True,False,False,False,True,False,False,False,False
+2003-04-30,2003,4,30,2,2,0.9431,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2003-04-30,2003,4,30,2,2,0.9431,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2003-04-30,2003,4,30,2,2,0.9419,0,2,9,4,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2003-04-30,2003,4,30,2,2,0.9419,9,4,2,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
