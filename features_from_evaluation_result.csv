@@ -779,3 +779,8 @@
 1996-06-25,1996,6,25,1,2,0.9444,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
 1996-06-25,1996,6,25,1,2,0.9444,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 1996-06-25,1996,6,25,1,1,0.9433,4,0,2,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+1996-06-28,1996,6,28,4,1,0.9386,1,6,3,9,4,19,1,9,8,4.75,3.031088913245535,False,True,False,False,False,True,False,False,False,False
+1996-06-28,1996,6,28,4,2,0.9465,2,0,1,0,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,True,False,False,False
+1996-06-28,1996,6,28,4,1,0.9452,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
+1996-06-28,1996,6,28,4,1,0.9452,1,1,0,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+1996-06-28,1996,6,28,4,1,0.9452,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
