@@ -1,0 +1,6 @@
+抽せん日,year,month,day,dayofweek,一致数_label,信頼度,pred_1,pred_2,pred_3,pred_4,pred_len,pred_sum,pred_min,pred_max,pred_range,pred_mean,pred_std,model_Diffusion,model_Synthetic,pred_idx_予測1,pred_idx_予測2,pred_idx_予測3,pred_idx_予測4,pred_idx_予測5
+1994-12-16,1994,12,16,4,1,0.91,3,4,3,6,4,16,3,6,3,4.0,1.224744871391589,False,True,True,False,False,False,False
+1994-12-16,1994,12,16,4,1,0.9755,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,True,False,False,False
+1994-12-16,1994,12,16,4,1,0.9746,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,True,False,False
+1994-12-16,1994,12,16,4,1,0.9746,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,True,False
+1994-12-16,1994,12,16,4,1,0.9746,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True
