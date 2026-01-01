@@ -7379,3 +7379,8 @@
 2005-01-25,2005,1,25,1,0,0.9428,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2005-01-25,2005,1,25,1,1,0.9426,9,5,7,0,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,True,False
 2005-01-25,2005,1,25,1,1,0.9426,0,7,9,5,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,False,True
+2005-01-26,2005,1,26,2,2,0.9407,1,2,9,7,4,19,1,9,8,4.75,3.344772040064913,False,True,False,False,False,True,False,False,False,False
+2005-01-26,2005,1,26,2,1,0.9428,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2005-01-26,2005,1,26,2,1,0.9428,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2005-01-26,2005,1,26,2,1,0.9426,7,5,9,0,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,True,False
+2005-01-26,2005,1,26,2,1,0.9423,0,9,6,7,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,False,False,True
