@@ -3,7 +3,7 @@
   "max_sim": 0.6598785099640687,
   "lambda_div": 0.6,
   "temperature": 0.35,
-  "best_value": 1.889895149485829,
+  "best_value": 1.9111759101913954,
   "study_name": "numbers4_optuna",
   "storage": "sqlite:///optuna_results/optuna_study.db"
 }
