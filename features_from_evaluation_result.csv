@@ -26699,3 +26699,8 @@
 2020-01-17,2020,1,17,4,1,0.9409,9,7,1,8,4,25,1,9,8,6.25,3.112474899497183,False,True,False,False,False,False,False,True,False,False
 2020-01-17,2020,1,17,4,1,0.9408,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
 2020-01-17,2020,1,17,4,1,0.9408,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,False,False,True,False,False,False,False,False,False,True
+2020-01-20,2020,1,20,0,2,0.9392,8,1,5,2,4,16,1,8,7,4.0,2.7386127875258306,False,True,False,False,False,True,False,False,False,False
+2020-01-20,2020,1,20,0,1,0.941,9,1,0,6,4,16,0,9,9,4.0,3.6742346141747673,False,True,False,False,False,False,True,False,False,False
+2020-01-20,2020,1,20,0,0,0.9408,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2020-01-20,2020,1,20,0,0,0.9408,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,False,False,True,False,False,False,False,False,True,False
+2020-01-20,2020,1,20,0,0,0.9405,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
