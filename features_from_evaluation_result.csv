@@ -28824,3 +28824,8 @@
 2021-09-07,2021,9,7,1,1,0.9408,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2021-09-07,2021,9,7,1,1,0.9408,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
 2021-09-07,2021,9,7,1,1,0.9408,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,False,False,True,False,False,False,False,False,False,True
+2021-09-08,2021,9,8,2,2,0.9391,8,1,2,3,4,14,1,8,7,3.5,2.692582403567252,False,True,False,False,False,True,False,False,False,False
+2021-09-08,2021,9,8,2,1,0.941,8,9,1,7,4,25,1,9,8,6.25,3.112474899497183,False,True,False,False,False,False,True,False,False,False
+2021-09-08,2021,9,8,2,1,0.941,1,9,8,7,4,25,1,9,8,6.25,3.112474899497183,False,True,False,False,False,False,False,True,False,False
+2021-09-08,2021,9,8,2,1,0.9408,9,7,0,4,4,20,0,9,9,5.0,3.391164991562634,False,True,False,False,False,False,False,False,True,False
+2021-09-08,2021,9,8,2,2,0.9408,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
