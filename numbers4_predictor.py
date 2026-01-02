@@ -1629,7 +1629,7 @@ def evaluate_and_summarize_predictions(
     lines.append("✓ 的中率は目標を達成しています。" if rate >= 10 else "✘ 的中率は目標に達していません。")
 
     box_prize, straight_prize, cost_per_draw = 37500, 937500, 400
-    for i in range(1, 5):
+    for i in range(1, max_pred_idx + 1):
         lines.append(f"\n== 等級別予想{i}集計 ==")
         for g in grade_list:
             lines.append(f"{g}: {results_by_prediction[i][g]} 件")
@@ -1665,9 +1665,9 @@ def evaluate_and_summarize_predictions(
     lines.append(f"最終損益: {'+' if profit >= 0 else '-'}¥{abs(profit):,}")
 
     lines.append("\n== 🆕 2025-11-01以降の各予測集計 ==")
-    target_date = datetime(2025, 11, 23).date()
+    target_date = datetime(2025, 11, 1).date()
 
-    for i in range(1, 5):
+    for i in range(1, max_pred_idx + 1):
         subset = eval_df[
             (eval_df["予測番号インデックス"] == f"予測{i}") &
             (pd.to_datetime(eval_df["抽せん日"], errors='coerce').dt.date >= target_date)
@@ -1693,30 +1693,40 @@ def evaluate_and_summarize_predictions(
         lines.append(f"的中率: {acc:.2f}%")
         lines.append(f"賞金: ¥{total_reward:,}, コスト: ¥{cost:,}, 損益: {'+' if profit >= 0 else '-'}¥{abs(profit):,}")
 
-    lines.append("\n== 出力元別的中率（予測1・2のみ） ==")
-    source_hit_counter = Counter()
-    source_total_counter = Counter()
-    for _, row in eval_df.iterrows():
-        if row["予測番号インデックス"] in ["予測1", "予測2"]:
-            source = row["出力元"]
-            grade = row["等級"]
-            source_total_counter[source] += 1
-            if grade in ["ボックス", "ストレート"]:
-                source_hit_counter[source] += 1
-
-    for source in sorted(source_total_counter):
-        total_s = source_total_counter[source]
-        hit = source_hit_counter[source]
+        lines.append("\n== 出力元別的中率（全予測） ==")
+    # 全予測（予測1〜max_pred_idx）を対象に、出力元ごとの的中率を集計
+    overall_stats = []
+    for source, grp in eval_df.groupby("出力元"):
+        total_s = len(grp)
+        hit = grp["等級"].isin(["ボックス", "ストレート"]).sum()
         rate_s = (hit / total_s * 100) if total_s > 0 else 0
+        overall_stats.append((total_s, source, hit, rate_s))
+    for total_s, source, hit, rate_s in sorted(overall_stats, reverse=True):
         lines.append(f"{source}: {hit} / {total_s} 件 （{rate_s:.2f}%）")
 
-    for i in range(1, 5):
-        lines.append(f"\n当選日一覧予想{i}（☆付きのみ）")
+    lines.append("\n== 出力元別的中率（予測別） ==")
+    for i in range(1, max_pred_idx + 1):
+        pred_label = f"予測{i}"
+        subset = eval_df[eval_df["予測番号インデックス"] == pred_label]
+        if subset.empty:
+            lines.append(f"\n[{pred_label}] データなし")
+            continue
+        lines.append(f"\n[{pred_label}]")
+        stats = []
+        for source, grp in subset.groupby("出力元"):
+            total_s = len(grp)
+            hit = grp["等級"].isin(["ボックス", "ストレート"]).sum()
+            rate_s = (hit / total_s * 100) if total_s > 0 else 0
+            stats.append((total_s, source, hit, rate_s))
+        for total_s, source, hit, rate_s in sorted(stats, reverse=True):
+            lines.append(f"{source}: {hit} / {total_s} 件 （{rate_s:.2f}%）")
+
+lines.append(f"\n当選日一覧予想{i}（☆付きのみ）")
         for detail in results_by_prediction[i]["details"]:
             try:
                 date_str = detail.split(",")[0].replace("☆", "").strip()
                 draw_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                if draw_date >= datetime(2025, 11, 23).date():
+                if draw_date >= target_date:
                     prefix = "☆"
                     lines.append(prefix + detail)
             except Exception:
