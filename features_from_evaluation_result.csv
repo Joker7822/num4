@@ -29834,3 +29834,8 @@
 2022-06-20,2022,6,20,0,2,0.9408,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2022-06-20,2022,6,20,0,1,0.9408,0,0,3,0,4,3,0,3,3,0.75,1.299038105676658,True,False,False,False,False,False,False,False,True,False
 2022-06-20,2022,6,20,0,2,0.9407,4,1,8,9,4,22,1,9,8,5.5,3.2015621187164243,False,True,False,False,False,False,False,False,False,True
+2022-06-21,2022,6,21,1,2,0.9393,5,8,7,2,4,22,2,8,6,5.5,2.29128784747792,False,True,False,False,False,True,False,False,False,False
+2022-06-21,2022,6,21,1,2,0.9408,5,6,8,9,4,28,5,9,4,7.0,1.5811388300841898,False,True,False,False,False,False,True,False,False,False
+2022-06-21,2022,6,21,1,0,0.9408,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,False,False,True,False,False,False,False,True,False,False
+2022-06-21,2022,6,21,1,0,0.9408,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,False,False,True,False,False,False,False,False,True,False
+2022-06-21,2022,6,21,1,2,0.9403,3,8,5,7,4,23,3,8,5,5.75,1.920286436967152,False,True,False,False,False,False,False,False,False,True
