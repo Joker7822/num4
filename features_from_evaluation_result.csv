@@ -29249,3 +29249,8 @@
 2022-01-06,2022,1,6,3,2,0.9412,0,8,3,9,4,20,0,9,9,5.0,3.6742346141747673,False,True,False,False,False,False,False,True,False,False
 2022-01-06,2022,1,6,3,1,0.9411,7,0,3,9,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,False,True,False
 2022-01-06,2022,1,6,3,1,0.941,6,5,9,0,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,False,False,False,True
+2022-01-07,2022,1,7,4,1,0.939,5,4,2,7,4,18,2,7,5,4.5,1.8027756377319946,False,True,False,False,False,True,False,False,False,False
+2022-01-07,2022,1,7,4,0,0.941,9,0,5,6,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,True,False,False,False
+2022-01-07,2022,1,7,4,1,0.9408,1,9,6,5,4,21,1,9,8,5.25,2.8613807855648994,False,True,False,False,False,False,False,True,False,False
+2022-01-07,2022,1,7,4,1,0.9408,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2022-01-07,2022,1,7,4,1,0.9408,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,False,False,True,False,False,False,False,False,False,True
