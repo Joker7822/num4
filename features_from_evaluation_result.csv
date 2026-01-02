@@ -31474,3 +31474,8 @@
 2023-09-25,2023,9,25,0,1,0.9411,1,5,9,0,4,15,0,9,9,3.75,3.5619517121937516,False,True,False,False,False,False,False,True,False,False
 2023-09-25,2023,9,25,0,1,0.9409,5,4,0,9,4,18,0,9,9,4.5,3.2015621187164243,False,True,False,False,False,False,False,False,True,False
 2023-09-25,2023,9,25,0,1,0.9408,6,0,9,1,4,16,0,9,9,4.0,3.6742346141747673,False,True,False,False,False,False,False,False,False,True
+2023-09-26,2023,9,26,1,1,0.9404,7,1,8,0,4,16,0,8,8,4.0,3.5355339059327378,False,True,False,False,False,True,False,False,False,False
+2023-09-26,2023,9,26,1,1,0.9412,7,0,8,9,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,True,False,False,False
+2023-09-26,2023,9,26,1,1,0.9412,0,8,9,7,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,True,False,False
+2023-09-26,2023,9,26,1,1,0.9412,7,0,9,8,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,False,True,False
+2023-09-26,2023,9,26,1,1,0.941,8,7,1,9,4,25,1,9,8,6.25,3.112474899497183,False,True,False,False,False,False,False,False,False,True
