@@ -23174,3 +23174,8 @@
 2017-04-20,2017,4,20,3,0,0.9404,4,0,3,7,4,14,0,7,7,3.5,2.5,False,True,False,False,False,False,False,True,False,False
 2017-04-20,2017,4,20,3,1,0.9404,3,7,0,1,4,11,0,7,7,2.75,2.680951323690902,False,True,False,False,False,False,False,False,True,False
 2017-04-20,2017,4,20,3,1,0.9404,3,7,1,0,4,11,0,7,7,2.75,2.680951323690902,False,True,False,False,False,False,False,False,False,True
+2017-04-21,2017,4,21,4,1,0.9402,0,4,2,9,4,15,0,9,9,3.75,3.344772040064913,False,True,False,False,False,True,False,False,False,False
+2017-04-21,2017,4,21,4,3,0.9415,7,9,3,0,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,True,False,False,False
+2017-04-21,2017,4,21,4,3,0.9415,7,0,9,3,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,True,False,False
+2017-04-21,2017,4,21,4,3,0.9415,9,3,0,7,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,False,True,False
+2017-04-21,2017,4,21,4,2,0.9414,4,9,7,0,4,20,0,9,9,5.0,3.391164991562634,False,True,False,False,False,False,False,False,False,True
