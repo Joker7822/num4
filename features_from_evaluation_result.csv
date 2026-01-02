@@ -31879,3 +31879,8 @@
 2024-01-19,2024,1,19,4,3,0.9411,0,3,5,9,4,17,0,9,9,4.25,3.2691742076555053,False,True,False,False,False,False,False,True,False,False
 2024-01-19,2024,1,19,4,2,0.9407,3,4,9,8,4,24,3,9,6,6.0,2.5495097567963922,False,True,False,False,False,False,False,False,True,False
 2024-01-19,2024,1,19,4,1,0.9406,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
+2024-01-22,2024,1,22,0,2,0.9398,6,3,1,7,4,17,1,7,6,4.25,2.384848003542364,False,True,False,False,False,True,False,False,False,False
+2024-01-22,2024,1,22,0,0,0.9407,4,8,3,9,4,24,3,9,6,6.0,2.5495097567963922,False,False,True,False,False,False,True,False,False,False
+2024-01-22,2024,1,22,0,1,0.9406,7,3,9,6,4,25,3,9,6,6.25,2.165063509461097,False,True,False,False,False,False,False,True,False,False
+2024-01-22,2024,1,22,0,1,0.9406,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2024-01-22,2024,1,22,0,1,0.9406,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,False,False,True,False,False,False,False,False,False,True
