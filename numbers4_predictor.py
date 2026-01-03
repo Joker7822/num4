@@ -1721,7 +1721,7 @@ def evaluate_and_summarize_predictions(
         for total_s, source, hit, rate_s in sorted(stats, reverse=True):
             lines.append(f"{source}: {hit} / {total_s} 件 （{rate_s:.2f}%）")
 
-lines.append(f"\n当選日一覧予想{i}（☆付きのみ）")
+        lines.append(f"\n当選日一覧予想{i}（☆付きのみ）")
         for detail in results_by_prediction[i]["details"]:
             try:
                 date_str = detail.split(",")[0].replace("☆", "").strip()
