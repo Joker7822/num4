@@ -814,3 +814,8 @@
 1996-07-19,1996,7,19,4,1,0.9452,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
 1996-07-19,1996,7,19,4,1,0.9452,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 1996-07-19,1996,7,19,4,2,0.9429,5,2,9,6,4,22,2,9,7,5.5,2.5,False,True,False,False,False,False,False,False,False,True
+1996-07-23,1996,7,23,1,1,0.9375,5,7,9,8,4,29,5,9,4,7.25,1.479019945774904,False,True,False,False,False,True,False,False,False,False
+1996-07-23,1996,7,23,1,0,0.9489,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+1996-07-23,1996,7,23,1,0,0.9489,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+1996-07-23,1996,7,23,1,0,0.9453,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+1996-07-23,1996,7,23,1,0,0.9453,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
