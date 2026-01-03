@@ -19159,3 +19159,8 @@
 2014-03-13,2014,3,13,3,1,0.9413,7,0,9,3,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,True,False,False
 2014-03-13,2014,3,13,3,1,0.9413,9,7,0,3,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,False,True,False
 2014-03-13,2014,3,13,3,1,0.9409,1,9,3,7,4,20,1,9,8,5.0,3.1622776601683795,False,True,False,False,False,False,False,False,False,True
+2014-03-14,2014,3,14,4,2,0.9409,8,9,7,5,4,29,5,9,4,7.25,1.479019945774904,False,True,False,False,False,True,False,False,False,False
+2014-03-14,2014,3,14,4,1,0.9404,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,True,False,False,False
+2014-03-14,2014,3,14,4,1,0.9404,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
+2014-03-14,2014,3,14,4,1,0.9404,1,1,0,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+2014-03-14,2014,3,14,4,1,0.9403,2,0,4,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
