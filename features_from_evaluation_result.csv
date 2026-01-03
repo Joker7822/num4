@@ -2014,3 +2014,8 @@
 1998-07-06,1998,7,6,0,0,0.9468,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 1998-07-06,1998,7,6,0,0,0.9439,1,1,0,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 1998-07-06,1998,7,6,0,1,0.9437,0,5,2,6,4,13,0,6,6,3.25,2.384848003542364,False,False,True,False,False,False,False,False,False,True
+1998-07-08,1998,7,8,2,3,0.9427,0,1,2,5,4,8,0,5,5,2.0,1.8708286933869707,False,True,False,False,False,True,False,False,False,False
+1998-07-08,1998,7,8,2,1,0.9439,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,True,False,False,False
+1998-07-08,1998,7,8,2,2,0.9437,0,5,6,2,4,13,0,6,6,3.25,2.384848003542364,False,False,True,False,False,False,False,True,False,False
+1998-07-08,1998,7,8,2,2,0.9433,0,2,9,4,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+1998-07-08,1998,7,8,2,3,0.9431,2,4,0,5,4,11,0,5,5,2.75,1.920286436967152,False,True,False,False,False,False,False,False,False,True
