@@ -12399,3 +12399,8 @@
 2008-12-12,2008,12,12,4,1,0.9412,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2008-12-12,2008,12,12,4,1,0.9412,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
 2008-12-12,2008,12,12,4,2,0.9409,6,8,1,9,4,24,1,9,8,6.0,3.082207001484488,False,True,False,False,False,False,False,False,False,True
+2008-12-15,2008,12,15,0,1,0.9415,7,4,0,9,4,20,0,9,9,5.0,3.391164991562634,False,True,False,False,False,True,False,False,False,False
+2008-12-15,2008,12,15,0,0,0.9417,7,0,9,8,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,True,False,False,False
+2008-12-15,2008,12,15,0,0,0.9417,0,9,8,7,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,True,False,False
+2008-12-15,2008,12,15,0,1,0.9413,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2008-12-15,2008,12,15,0,1,0.9411,9,4,0,8,4,21,0,9,9,5.25,3.5619517121937516,False,True,False,False,False,False,False,False,False,True
