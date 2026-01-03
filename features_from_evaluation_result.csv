@@ -25579,3 +25579,8 @@
 2019-03-05,2019,3,5,1,1,0.9411,0,8,9,1,4,18,0,9,9,4.5,4.031128874149275,False,True,False,False,False,False,False,True,False,False
 2019-03-05,2019,3,5,1,1,0.9411,0,9,8,1,4,18,0,9,9,4.5,4.031128874149275,False,True,False,False,False,False,False,False,True,False
 2019-03-05,2019,3,5,1,1,0.9409,0,4,9,8,4,21,0,9,9,5.25,3.5619517121937516,False,True,False,False,False,False,False,False,False,True
+2019-03-06,2019,3,6,2,1,0.9401,4,0,5,8,4,17,0,8,8,4.25,2.8613807855648994,False,True,False,False,False,True,False,False,False,False
+2019-03-06,2019,3,6,2,2,0.9408,1,9,6,8,4,24,1,9,8,6.0,3.082207001484488,False,True,False,False,False,False,True,False,False,False
+2019-03-06,2019,3,6,2,2,0.9406,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2019-03-06,2019,3,6,2,2,0.9406,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2019-03-06,2019,3,6,2,0,0.9403,3,8,5,7,4,23,3,8,5,5.75,1.920286436967152,False,True,False,False,False,False,False,False,False,True
