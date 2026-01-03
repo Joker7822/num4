@@ -22164,3 +22164,8 @@
 2016-07-08,2016,7,8,4,2,0.9403,3,0,1,7,4,11,0,7,7,2.75,2.680951323690902,False,True,False,False,False,False,False,True,False,False
 2016-07-08,2016,7,8,4,1,0.9403,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 2016-07-08,2016,7,8,4,1,0.9402,3,0,1,8,4,12,0,8,8,3.0,3.082207001484488,False,True,False,False,False,False,False,False,False,True
+2016-07-11,2016,7,11,0,2,0.9401,3,8,0,4,4,15,0,8,8,3.75,2.8613807855648994,False,True,False,False,False,True,False,False,False,False
+2016-07-11,2016,7,11,0,3,0.9411,0,3,9,8,4,20,0,9,9,5.0,3.6742346141747673,False,True,False,False,False,False,True,False,False,False
+2016-07-11,2016,7,11,0,3,0.9411,9,3,8,0,4,20,0,9,9,5.0,3.6742346141747673,False,True,False,False,False,False,False,True,False,False
+2016-07-11,2016,7,11,0,0,0.9403,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+2016-07-11,2016,7,11,0,0,0.9403,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
