@@ -1094,3 +1094,8 @@
 1997-02-07,1997,2,7,4,1,0.9455,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 1997-02-07,1997,2,7,4,0,0.9445,4,0,2,5,4,11,0,5,5,2.75,1.920286436967152,False,True,False,False,False,False,False,False,True,False
 1997-02-07,1997,2,7,4,0,0.9445,0,4,5,2,4,11,0,5,5,2.75,1.920286436967152,False,True,False,False,False,False,False,False,False,True
+1997-02-11,1997,2,11,1,1,0.9427,0,3,2,4,4,9,0,4,4,2.25,1.479019945774904,False,True,False,False,False,True,False,False,False,False
+1997-02-11,1997,2,11,1,1,0.9456,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+1997-02-11,1997,2,11,1,1,0.9445,0,4,5,2,4,11,0,5,5,2.75,1.920286436967152,False,True,False,False,False,False,False,True,False,False
+1997-02-11,1997,2,11,1,1,0.9445,5,2,0,4,4,11,0,5,5,2.75,1.920286436967152,False,True,False,False,False,False,False,False,True,False
+1997-02-11,1997,2,11,1,1,0.9418,7,0,9,5,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,False,True
