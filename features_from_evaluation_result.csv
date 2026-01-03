@@ -14034,3 +14034,8 @@
 2010-03-23,2010,3,23,1,1,0.941,0,3,0,0,4,3,0,3,3,0.75,1.299038105676658,True,False,False,False,False,False,False,True,False,False
 2010-03-23,2010,3,23,1,1,0.9409,7,4,9,8,4,28,4,9,5,7.0,1.8708286933869707,False,True,False,False,False,False,False,False,True,False
 2010-03-23,2010,3,23,1,1,0.9409,7,4,8,9,4,28,4,9,5,7.0,1.8708286933869707,False,True,False,False,False,False,False,False,False,True
+2010-03-24,2010,3,24,2,2,0.9394,7,2,6,4,4,19,2,7,5,4.75,1.920286436967152,False,True,False,False,False,True,False,False,False,False
+2010-03-24,2010,3,24,2,1,0.9417,7,9,6,0,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,True,False,False,False
+2010-03-24,2010,3,24,2,1,0.9406,4,0,6,7,4,17,0,7,7,4.25,2.680951323690902,False,True,False,False,False,False,False,True,False,False
+2010-03-24,2010,3,24,2,1,0.9406,6,4,7,0,4,17,0,7,7,4.25,2.680951323690902,False,True,False,False,False,False,False,False,True,False
+2010-03-24,2010,3,24,2,2,0.9406,8,9,7,1,4,25,1,9,8,6.25,3.112474899497183,False,True,False,False,False,False,False,False,False,True
