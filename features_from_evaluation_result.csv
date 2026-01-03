@@ -21389,3 +21389,8 @@
 2015-12-02,2015,12,2,2,1,0.941,9,8,0,4,4,21,0,9,9,5.25,3.5619517121937516,False,True,False,False,False,False,False,True,False,False
 2015-12-02,2015,12,2,2,1,0.9409,9,4,7,3,4,23,3,9,6,5.75,2.384848003542364,False,True,False,False,False,False,False,False,True,False
 2015-12-02,2015,12,2,2,2,0.9409,5,9,7,6,4,27,5,9,4,6.75,1.479019945774904,False,True,False,False,False,False,False,False,False,True
+2015-12-03,2015,12,3,3,1,0.9399,3,2,5,9,4,19,2,9,7,4.75,2.680951323690902,False,True,False,False,False,True,False,False,False,False
+2015-12-03,2015,12,3,3,1,0.941,9,7,3,8,4,27,3,9,6,6.75,2.277608394786075,False,True,False,False,False,False,True,False,False,False
+2015-12-03,2015,12,3,3,1,0.9407,4,8,9,3,4,24,3,9,6,6.0,2.5495097567963922,False,True,False,False,False,False,False,True,False,False
+2015-12-03,2015,12,3,3,1,0.9407,8,9,4,3,4,24,3,9,6,6.0,2.5495097567963922,False,True,False,False,False,False,False,False,True,False
+2015-12-03,2015,12,3,3,2,0.9407,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
