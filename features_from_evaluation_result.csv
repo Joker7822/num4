@@ -14299,3 +14299,8 @@
 2010-06-04,2010,6,4,4,1,0.9408,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2010-06-04,2010,6,4,4,1,0.9406,0,7,6,5,4,18,0,7,7,4.5,2.692582403567252,False,True,False,False,False,False,False,False,True,False
 2010-06-04,2010,6,4,4,1,0.9406,0,6,5,7,4,18,0,7,7,4.5,2.692582403567252,False,True,False,False,False,False,False,False,False,True
+2010-06-07,2010,6,7,0,1,0.9408,8,0,6,7,4,21,0,8,8,5.25,3.112474899497183,False,True,False,False,False,True,False,False,False,False
+2010-06-07,2010,6,7,0,2,0.9415,9,6,5,0,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,True,False,False,False
+2010-06-07,2010,6,7,0,2,0.9415,5,0,6,9,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,False,True,False,False
+2010-06-07,2010,6,7,0,2,0.9415,6,9,0,5,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,False,False,True,False
+2010-06-07,2010,6,7,0,1,0.9408,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
