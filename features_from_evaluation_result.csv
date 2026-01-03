@@ -329,3 +329,8 @@
 1995-08-11,1995,8,11,4,1,0.9493,5,4,8,0,4,17,0,8,8,4.25,2.8613807855648994,False,True,False,False,False,False,True,False,False
 1995-08-11,1995,8,11,4,1,0.9493,8,0,4,5,4,17,0,8,8,4.25,2.8613807855648994,False,True,False,False,False,False,False,True,False
 1995-08-11,1995,8,11,4,1,0.9493,4,8,5,0,4,17,0,8,8,4.25,2.8613807855648994,False,True,False,False,False,False,False,False,True
+1995-08-15,1995,8,15,1,2,0.9439,2,4,3,6,4,15,2,6,4,3.75,1.479019945774904,False,True,False,False,True,False,False,False,False
+1995-08-15,1995,8,15,1,2,0.948,2,4,8,0,4,14,0,8,8,3.5,2.958039891549808,False,True,False,False,False,True,False,False,False
+1995-08-15,1995,8,15,1,1,0.9475,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False
+1995-08-15,1995,8,15,1,1,0.9475,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False
+1995-08-15,1995,8,15,1,2,0.9458,6,2,0,9,4,17,0,9,9,4.25,3.491060010942235,False,True,False,False,False,False,False,False,True
