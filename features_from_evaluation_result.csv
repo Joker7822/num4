@@ -11194,3 +11194,8 @@
 2008-01-10,2008,1,10,3,2,0.9412,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
 2008-01-10,2008,1,10,3,2,0.9412,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 2008-01-10,2008,1,10,3,2,0.9412,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
+2008-01-11,2008,1,11,4,3,0.939,4,8,2,7,4,21,2,8,6,5.25,2.384848003542364,False,True,False,False,False,True,False,False,False,False
+2008-01-11,2008,1,11,4,1,0.942,9,7,0,6,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,True,False,False,False
+2008-01-11,2008,1,11,4,1,0.942,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2008-01-11,2008,1,11,4,1,0.9413,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+2008-01-11,2008,1,11,4,1,0.9413,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
