@@ -24749,3 +24749,8 @@
 2018-07-10,2018,7,10,1,1,0.9407,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2018-07-10,2018,7,10,1,1,0.9407,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
 2018-07-10,2018,7,10,1,1,0.9404,3,7,0,8,4,18,0,8,8,4.5,3.2015621187164243,False,True,False,False,False,False,False,False,False,True
+2018-07-11,2018,7,11,2,2,0.9391,0,2,6,5,4,13,0,6,6,3.25,2.384848003542364,False,False,True,False,False,True,False,False,False,False
+2018-07-11,2018,7,11,2,0,0.9413,9,8,7,0,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,True,False,False,False
+2018-07-11,2018,7,11,2,0,0.9413,0,9,8,7,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,True,False,False
+2018-07-11,2018,7,11,2,0,0.9413,9,8,0,7,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,False,True,False
+2018-07-11,2018,7,11,2,0,0.9407,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
