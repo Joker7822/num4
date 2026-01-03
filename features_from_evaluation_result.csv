@@ -30849,3 +30849,8 @@
 2023-04-03,2023,4,3,0,1,0.9408,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2023-04-03,2023,4,3,0,3,0.9405,8,5,7,0,4,20,0,8,8,5.0,3.082207001484488,False,True,False,False,False,False,False,False,True,False
 2023-04-03,2023,4,3,0,3,0.9405,7,5,0,8,4,20,0,8,8,5.0,3.082207001484488,False,True,False,False,False,False,False,False,False,True
+2023-04-04,2023,4,4,1,1,0.9409,3,0,4,9,4,16,0,9,9,4.0,3.24037034920393,False,True,False,False,False,True,False,False,False,False
+2023-04-04,2023,4,4,1,2,0.9413,3,0,9,8,4,20,0,9,9,5.0,3.6742346141747673,False,True,False,False,False,False,True,False,False,False
+2023-04-04,2023,4,4,1,1,0.9409,0,9,6,3,4,18,0,9,9,4.5,3.3541019662496847,False,True,False,False,False,False,False,True,False,False
+2023-04-04,2023,4,4,1,1,0.9409,6,3,9,0,4,18,0,9,9,4.5,3.3541019662496847,False,True,False,False,False,False,False,False,True,False
+2023-04-04,2023,4,4,1,1,0.9408,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
