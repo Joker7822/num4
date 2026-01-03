@@ -15129,3 +15129,8 @@
 2011-01-26,2011,1,26,2,1,0.9408,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2011-01-26,2011,1,26,2,2,0.9405,6,5,0,7,4,18,0,7,7,4.5,2.692582403567252,False,True,False,False,False,False,False,False,True,False
 2011-01-26,2011,1,26,2,2,0.9405,7,5,0,6,4,18,0,7,7,4.5,2.692582403567252,False,True,False,False,False,False,False,False,False,True
+2011-01-27,2011,1,27,3,0,0.9395,2,0,4,5,4,11,0,5,5,2.75,1.920286436967152,False,True,False,False,False,True,False,False,False,False
+2011-01-27,2011,1,27,3,2,0.9413,8,9,5,0,4,22,0,9,9,5.5,3.5,False,True,False,False,False,False,True,False,False,False
+2011-01-27,2011,1,27,3,2,0.9413,5,8,0,9,4,22,0,9,9,5.5,3.5,False,True,False,False,False,False,False,True,False,False
+2011-01-27,2011,1,27,3,2,0.9413,8,0,5,9,4,22,0,9,9,5.5,3.5,False,True,False,False,False,False,False,False,True,False
+2011-01-27,2011,1,27,3,2,0.9413,5,8,9,0,4,22,0,9,9,5.5,3.5,False,True,False,False,False,False,False,False,False,True
