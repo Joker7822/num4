@@ -3389,3 +3389,8 @@
 2000-04-14,2000,4,14,4,1,0.9446,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2000-04-14,2000,4,14,4,2,0.9424,9,2,0,4,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
 2000-04-14,2000,4,14,4,1,0.942,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
+2000-04-17,2000,4,17,0,2,0.9401,1,4,6,9,4,20,1,9,8,5.0,2.9154759474226504,False,True,False,False,False,True,False,False,False,False
+2000-04-17,2000,4,17,0,1,0.9435,9,0,2,6,4,17,0,9,9,4.25,3.491060010942235,False,True,False,False,False,False,True,False,False,False
+2000-04-17,2000,4,17,0,2,0.9426,9,2,3,0,4,14,0,9,9,3.5,3.3541019662496847,False,True,False,False,False,False,False,True,False,False
+2000-04-17,2000,4,17,0,1,0.9421,0,1,0,3,4,4,0,3,3,1.0,1.224744871391589,True,False,False,False,False,False,False,False,True,False
+2000-04-17,2000,4,17,0,0,0.942,0,1,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
