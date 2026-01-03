@@ -1824,3 +1824,8 @@
 1998-04-08,1998,4,8,2,2,0.9443,1,0,0,2,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,True,False,False
 1998-04-08,1998,4,8,2,0,0.9431,0,6,9,4,4,19,0,9,9,4.75,3.2691742076555053,False,True,False,False,False,False,False,False,True,False
 1998-04-08,1998,4,8,2,0,0.9431,6,0,4,9,4,19,0,9,9,4.75,3.2691742076555053,False,True,False,False,False,False,False,False,False,True
+1998-04-10,1998,4,10,4,1,0.9411,1,7,8,0,4,16,0,8,8,4.0,3.5355339059327378,False,True,False,False,False,True,False,False,False,False
+1998-04-10,1998,4,10,4,1,0.9465,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+1998-04-10,1998,4,10,4,2,0.9445,2,1,0,0,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,True,False,False
+1998-04-10,1998,4,10,4,1,0.9445,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
+1998-04-10,1998,4,10,4,2,0.9438,0,6,5,4,4,15,0,6,6,3.75,2.277608394786075,False,True,False,False,False,False,False,False,False,True
