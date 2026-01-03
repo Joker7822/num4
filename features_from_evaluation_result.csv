@@ -20709,3 +20709,8 @@
 2015-05-26,2015,5,26,1,2,0.9405,0,7,2,9,4,18,0,9,9,4.5,3.640054944640259,False,True,False,False,False,False,False,True,False,False
 2015-05-26,2015,5,26,1,2,0.9404,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,True,False
 2015-05-26,2015,5,26,1,2,0.9404,1,1,0,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
+2015-05-27,2015,5,27,2,0,0.7303,0,7,4,1,4,12,0,7,7,3.0,2.7386127875258306,False,False,False,False,True,True,False,False,False,False
+2015-05-27,2015,5,27,2,1,0.9413,8,0,7,9,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,True,False,False,False
+2015-05-27,2015,5,27,2,1,0.941,4,9,7,8,4,28,4,9,5,7.0,1.8708286933869707,False,True,False,False,False,False,False,True,False,False
+2015-05-27,2015,5,27,2,1,0.941,9,8,7,4,4,28,4,9,5,7.0,1.8708286933869707,False,True,False,False,False,False,False,False,True,False
+2015-05-27,2015,5,27,2,0,0.9406,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
