@@ -17659,3 +17659,8 @@
 2013-01-11,2013,1,11,4,0,0.9412,6,4,9,0,4,19,0,9,9,4.75,3.2691742076555053,False,True,False,False,False,False,False,True,False,False
 2013-01-11,2013,1,11,4,1,0.9411,0,8,9,1,4,18,0,9,9,4.5,4.031128874149275,False,True,False,False,False,False,False,False,True,False
 2013-01-11,2013,1,11,4,1,0.9409,9,7,3,4,4,23,3,9,6,5.75,2.384848003542364,False,True,False,False,False,False,False,False,False,True
+2013-01-14,2013,1,14,0,1,0.9402,8,2,5,9,4,24,2,9,7,6.0,2.7386127875258306,False,True,False,False,False,True,False,False,False,False
+2013-01-14,2013,1,14,0,2,0.9412,7,1,9,0,4,17,0,9,9,4.25,3.832427429188973,False,True,False,False,False,False,True,False,False,False
+2013-01-14,2013,1,14,0,2,0.9411,6,7,9,8,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,False,True,False,False
+2013-01-14,2013,1,14,0,2,0.9411,8,9,4,7,4,28,4,9,5,7.0,1.8708286933869707,False,True,False,False,False,False,False,False,True,False
+2013-01-14,2013,1,14,0,1,0.9407,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
