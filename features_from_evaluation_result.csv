@@ -5574,3 +5574,8 @@
 2003-02-12,2003,2,12,2,0,0.9427,5,9,0,2,4,16,0,9,9,4.0,3.391164991562634,False,True,False,False,False,False,False,True,False,False
 2003-02-12,2003,2,12,2,0,0.9419,0,4,9,2,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
 2003-02-12,2003,2,12,2,0,0.9419,4,9,2,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+2003-02-14,2003,2,14,4,2,0.9377,2,7,1,8,4,18,1,8,7,4.5,3.0413812651491097,False,True,False,False,False,True,False,False,False,False
+2003-02-14,2003,2,14,4,1,0.9429,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2003-02-14,2003,2,14,4,2,0.9419,4,2,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,True,False,False
+2003-02-14,2003,2,14,4,2,0.9419,2,0,9,4,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2003-02-14,2003,2,14,4,2,0.9412,5,7,2,0,4,14,0,7,7,3.5,2.692582403567252,False,True,False,False,False,False,False,False,False,True
