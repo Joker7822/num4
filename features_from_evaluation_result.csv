@@ -6599,3 +6599,8 @@
 2004-06-09,2004,6,9,2,1,0.9428,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2004-06-09,2004,6,9,2,2,0.9418,1,0,9,7,4,17,0,9,9,4.25,3.832427429188973,False,True,False,False,False,False,False,False,True,False
 2004-06-09,2004,6,9,2,3,0.9416,2,4,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+2004-06-11,2004,6,11,4,1,0.9406,8,0,3,7,4,18,0,8,8,4.5,3.2015621187164243,False,True,False,False,False,True,False,False,False,False
+2004-06-11,2004,6,11,4,2,0.9416,5,3,7,0,4,15,0,7,7,3.75,2.5860201081971503,False,True,False,False,False,False,True,False,False,False
+2004-06-11,2004,6,11,4,1,0.9416,9,2,0,4,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,True,False,False
+2004-06-11,2004,6,11,4,1,0.9416,2,9,4,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2004-06-11,2004,6,11,4,1,0.9416,4,2,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
