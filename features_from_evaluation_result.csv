@@ -20739,3 +20739,8 @@
 2015-06-03,2015,6,3,2,1,0.9406,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2015-06-03,2015,6,3,2,2,0.9403,1,7,4,0,4,12,0,7,7,3.0,2.7386127875258306,False,True,False,False,False,False,False,False,True,False
 2015-06-03,2015,6,3,2,2,0.9403,4,1,7,0,4,12,0,7,7,3.0,2.7386127875258306,False,True,False,False,False,False,False,False,False,True
+2015-06-04,2015,6,4,3,2,0.9408,7,3,9,6,4,25,3,9,6,6.25,2.165063509461097,False,True,False,False,False,True,False,False,False,False
+2015-06-04,2015,6,4,3,4,0.9413,9,8,7,0,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,True,False,False,False
+2015-06-04,2015,6,4,3,4,0.9413,9,7,8,0,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,True,False,False
+2015-06-04,2015,6,4,3,4,0.9413,0,7,9,8,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,False,True,False
+2015-06-04,2015,6,4,3,4,0.9413,0,9,8,7,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,False,False,True
