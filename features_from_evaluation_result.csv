@@ -17479,3 +17479,8 @@
 2012-11-16,2012,11,16,4,1,0.9408,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2012-11-16,2012,11,16,4,2,0.9405,2,9,4,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
 2012-11-16,2012,11,16,4,2,0.9405,4,0,9,2,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+2012-11-19,2012,11,19,0,3,0.9401,0,8,6,3,4,17,0,8,8,4.25,3.031088913245535,False,True,False,False,False,True,False,False,False,False
+2012-11-19,2012,11,19,0,2,0.9415,8,0,9,7,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,True,False,False,False
+2012-11-19,2012,11,19,0,3,0.9413,6,9,0,8,4,23,0,9,9,5.75,3.491060010942235,False,True,False,False,False,False,False,True,False,False
+2012-11-19,2012,11,19,0,1,0.9405,9,2,4,0,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2012-11-19,2012,11,19,0,1,0.9405,4,0,9,2,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
