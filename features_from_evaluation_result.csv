@@ -4909,3 +4909,8 @@
 2002-04-03,2002,4,3,2,2,0.9421,9,0,4,2,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,True,False,False
 2002-04-03,2002,4,3,2,3,0.9416,0,5,6,2,4,13,0,6,6,3.25,2.384848003542364,False,True,False,False,False,False,False,False,True,False
 2002-04-03,2002,4,3,2,2,0.9412,4,5,9,2,4,20,2,9,7,5.0,2.5495097567963922,False,True,False,False,False,False,False,False,False,True
+2002-04-05,2002,4,5,4,2,0.9409,7,9,6,1,4,23,1,9,8,5.75,2.947456530637899,False,True,False,False,False,True,False,False,False,False
+2002-04-05,2002,4,5,4,3,0.9429,6,7,9,0,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,True,False,False,False
+2002-04-05,2002,4,5,4,1,0.9428,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2002-04-05,2002,4,5,4,1,0.9428,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2002-04-05,2002,4,5,4,2,0.9421,9,4,0,2,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
