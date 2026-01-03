@@ -4079,3 +4079,8 @@
 2001-03-07,2001,3,7,2,3,0.9444,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2001-03-07,2001,3,7,2,1,0.9434,9,7,6,0,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,False,True,False
 2001-03-07,2001,3,7,2,1,0.9426,2,4,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+2001-03-09,2001,3,9,4,2,0.9409,9,2,4,5,4,20,2,9,7,5.0,2.5495097567963922,False,True,False,False,False,True,False,False,False,False
+2001-03-09,2001,3,9,4,0,0.9444,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2001-03-09,2001,3,9,4,1,0.9436,9,0,7,2,4,18,0,9,9,4.5,3.640054944640259,False,True,False,False,False,False,False,True,False,False
+2001-03-09,2001,3,9,4,2,0.9426,0,2,4,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2001-03-09,2001,3,9,4,2,0.9417,7,9,6,5,4,27,5,9,4,6.75,1.479019945774904,False,True,False,False,False,False,False,False,False,True
