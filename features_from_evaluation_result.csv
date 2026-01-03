@@ -5369,3 +5369,8 @@
 2002-11-04,2002,11,4,0,1,0.9424,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2002-11-04,2002,11,4,0,1,0.942,7,6,9,5,4,27,5,9,4,6.75,1.479019945774904,False,True,False,False,False,False,False,False,True,False
 2002-11-04,2002,11,4,0,2,0.9419,9,2,5,6,4,22,2,9,7,5.5,2.5,False,True,False,False,False,False,False,False,False,True
+2002-11-06,2002,11,6,2,2,0.9408,4,6,9,3,4,22,3,9,6,5.5,2.29128784747792,False,True,False,False,False,True,False,False,False,False
+2002-11-06,2002,11,6,2,2,0.9429,7,6,0,9,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,True,False,False,False
+2002-11-06,2002,11,6,2,2,0.9429,6,7,9,0,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,True,False,False
+2002-11-06,2002,11,6,2,2,0.9429,9,7,6,0,4,22,0,9,9,5.5,3.3541019662496847,False,True,False,False,False,False,False,False,True,False
+2002-11-06,2002,11,6,2,2,0.9424,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
