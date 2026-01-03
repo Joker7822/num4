@@ -29544,3 +29544,8 @@
 2022-03-30,2022,3,30,2,1,0.9404,5,8,3,7,4,23,3,8,5,5.75,1.920286436967152,False,True,False,False,False,False,False,True,False,False
 2022-03-30,2022,3,30,2,1,0.9404,1,5,3,8,4,17,1,8,7,4.25,2.5860201081971503,False,True,False,False,False,False,False,False,True,False
 2022-03-30,2022,3,30,2,1,0.9404,5,3,8,1,4,17,1,8,7,4.25,2.5860201081971503,False,True,False,False,False,False,False,False,False,True
+2022-03-31,2022,3,31,3,2,0.9411,8,1,9,5,4,23,1,9,8,5.75,3.112474899497183,False,True,False,False,False,True,False,False,False,False
+2022-03-31,2022,3,31,3,3,0.9412,9,3,0,5,4,17,0,9,9,4.25,3.2691742076555053,False,True,False,False,False,False,True,False,False,False
+2022-03-31,2022,3,31,3,3,0.9412,9,7,8,0,4,24,0,9,9,6.0,3.5355339059327378,False,True,False,False,False,False,False,True,False,False
+2022-03-31,2022,3,31,3,2,0.9411,1,8,9,5,4,23,1,9,8,5.75,3.112474899497183,False,True,False,False,False,False,False,False,True,False
+2022-03-31,2022,3,31,3,2,0.9407,9,8,7,4,4,28,4,9,5,7.0,1.8708286933869707,False,True,False,False,False,False,False,False,False,True
