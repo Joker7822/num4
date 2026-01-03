@@ -9589,3 +9589,8 @@
 2006-10-09,2006,10,9,0,1,0.9428,3,0,0,0,4,3,0,3,3,0.75,1.299038105676658,True,False,False,False,False,False,False,True,False,False
 2006-10-09,2006,10,9,0,1,0.9424,7,9,0,5,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,True,False
 2006-10-09,2006,10,9,0,1,0.9424,5,0,7,9,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,False,True
+2006-10-10,2006,10,10,1,2,0.9404,0,1,2,6,4,9,0,6,6,2.25,2.277608394786075,False,True,False,False,False,True,False,False,False,False
+2006-10-10,2006,10,10,1,1,0.9433,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2006-10-10,2006,10,10,1,1,0.9433,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2006-10-10,2006,10,10,1,1,0.9423,0,1,7,9,4,17,0,9,9,4.25,3.832427429188973,False,True,False,False,False,False,False,False,True,False
+2006-10-10,2006,10,10,1,1,0.9422,1,0,1,0,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
