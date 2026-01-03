@@ -6274,3 +6274,8 @@
 2004-01-09,2004,1,9,4,1,0.9426,5,0,6,9,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,False,True,False,False
 2004-01-09,2004,1,9,4,1,0.9425,0,5,7,9,4,21,0,9,9,5.25,3.344772040064913,False,True,False,False,False,False,False,False,True,False
 2004-01-09,2004,1,9,4,2,0.9417,0,1,2,0,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,False,False,True
+2004-01-12,2004,1,12,0,1,0.9412,0,6,5,2,4,13,0,6,6,3.25,2.384848003542364,False,False,True,False,False,True,False,False,False,False
+2004-01-12,2004,1,12,0,1,0.9431,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2004-01-12,2004,1,12,0,0,0.9417,4,9,0,2,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,True,False,False
+2004-01-12,2004,1,12,0,1,0.9413,5,9,6,7,4,27,5,9,4,6.75,1.479019945774904,False,True,False,False,False,False,False,False,True,False
+2004-01-12,2004,1,12,0,1,0.9413,6,7,5,9,4,27,5,9,4,6.75,1.479019945774904,False,True,False,False,False,False,False,False,False,True
