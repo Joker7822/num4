@@ -14269,3 +14269,8 @@
 2010-05-27,2010,5,27,3,1,0.9408,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2010-05-27,2010,5,27,3,3,0.9406,7,0,5,6,4,18,0,7,7,4.5,2.692582403567252,False,True,False,False,False,False,False,False,True,False
 2010-05-27,2010,5,27,3,2,0.9404,0,8,7,5,4,20,0,8,8,5.0,3.082207001484488,False,True,False,False,False,False,False,False,False,True
+2010-05-28,2010,5,28,4,1,0.9387,8,3,1,2,4,14,1,8,7,3.5,2.692582403567252,False,True,False,False,False,True,False,False,False,False
+2010-05-28,2010,5,28,4,3,0.9413,9,7,6,8,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,True,False,False,False
+2010-05-28,2010,5,28,4,3,0.9413,8,6,9,7,4,30,6,9,3,7.5,1.118033988749895,False,True,False,False,False,False,False,True,False,False
+2010-05-28,2010,5,28,4,3,0.9408,9,3,8,7,4,27,3,9,6,6.75,2.277608394786075,False,True,False,False,False,False,False,False,True,False
+2010-05-28,2010,5,28,4,3,0.9408,3,8,7,9,4,27,3,9,6,6.75,2.277608394786075,False,True,False,False,False,False,False,False,False,True
