@@ -4104,3 +4104,8 @@
 2001-03-19,2001,3,19,0,2,0.9445,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
 2001-03-19,2001,3,19,0,2,0.9445,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
 2001-03-19,2001,3,19,0,1,0.9429,3,9,6,0,4,18,0,9,9,4.5,3.3541019662496847,False,True,False,False,False,False,False,False,False,True
+2001-03-21,2001,3,21,2,2,0.9383,4,3,5,6,4,18,3,6,3,4.5,1.118033988749895,False,True,False,False,False,True,False,False,False,False
+2001-03-21,2001,3,21,2,1,0.9445,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+2001-03-21,2001,3,21,2,1,0.9445,0,0,1,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2001-03-21,2001,3,21,2,2,0.9426,2,4,0,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
+2001-03-21,2001,3,21,2,1,0.9417,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
