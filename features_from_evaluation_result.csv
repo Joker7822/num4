@@ -1339,3 +1339,8 @@
 1997-07-29,1997,7,29,1,1,0.9449,0,1,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,True,False,False
 1997-07-29,1997,7,29,1,1,0.9447,1,0,0,2,4,3,0,2,2,0.75,0.82915619758885,True,False,False,False,False,False,False,False,True,False
 1997-07-29,1997,7,29,1,0,0.9402,1,2,1,1,4,5,1,2,1,1.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
+1997-08-01,1997,8,1,4,3,0.9396,7,1,8,5,4,21,1,8,7,5.25,2.680951323690902,False,True,False,False,False,True,False,False,False,False
+1997-08-01,1997,8,1,4,2,0.9473,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,True,False,False,False
+1997-08-01,1997,8,1,4,2,0.9473,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+1997-08-01,1997,8,1,4,2,0.9473,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+1997-08-01,1997,8,1,4,2,0.945,1,0,0,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
