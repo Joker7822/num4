@@ -24959,3 +24959,8 @@
 2018-09-06,2018,9,6,3,1,0.9409,7,1,9,8,4,25,1,9,8,6.25,3.112474899497183,False,True,False,False,False,False,False,True,False,False
 2018-09-06,2018,9,6,3,1,0.9406,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
 2018-09-06,2018,9,6,3,1,0.9406,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,False,True
+2018-09-07,2018,9,7,4,0,0.9403,8,7,3,5,4,23,3,8,5,5.75,1.920286436967152,False,True,False,False,False,True,False,False,False,False
+2018-09-07,2018,9,7,4,0,0.9408,3,8,4,9,4,24,3,9,6,6.0,2.5495097567963922,False,True,False,False,False,False,True,False,False,False
+2018-09-07,2018,9,7,4,2,0.9406,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2018-09-07,2018,9,7,4,2,0.9406,1,0,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2018-09-07,2018,9,7,4,2,0.9404,0,0,1,1,4,2,0,1,1,0.5,0.5,True,False,False,False,False,False,False,False,False,True
