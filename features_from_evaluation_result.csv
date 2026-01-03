@@ -5244,3 +5244,8 @@
 2002-09-06,2002,9,6,4,2,0.9425,7,0,9,3,4,19,0,9,9,4.75,3.491060010942235,False,True,False,False,False,False,False,True,False,False
 2002-09-06,2002,9,6,4,1,0.9421,0,9,4,2,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,True,False
 2002-09-06,2002,9,6,4,1,0.9421,0,4,2,9,4,15,0,9,9,3.75,3.344772040064913,False,False,True,False,False,False,False,False,False,True
+2002-09-09,2002,9,9,0,1,0.9431,6,0,5,9,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,True,False,False,False,False
+2002-09-09,2002,9,9,0,1,0.9431,9,5,6,0,4,20,0,9,9,5.0,3.24037034920393,False,True,False,False,False,False,True,False,False,False
+2002-09-09,2002,9,9,0,1,0.943,0,1,0,0,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,True,False,False
+2002-09-09,2002,9,9,0,1,0.943,0,0,0,1,4,1,0,1,1,0.25,0.4330127018922193,True,False,False,False,False,False,False,False,True,False
+2002-09-09,2002,9,9,0,2,0.9428,3,9,5,0,4,17,0,9,9,4.25,3.2691742076555053,False,True,False,False,False,False,False,False,False,True
